@@ -110,12 +110,13 @@
 
         if (this.game.time.time >= this.nextFire) { 
 
-        var x = source.x + 10;
-        var y = source.y + 10;
+            var x = source.x + 10;
+            var y = source.y + 10;
 
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
 
-        this.nextFire = this.game.time.time + this.fireRate;
+            this.nextFire = this.game.time.time + this.fireRate;
+
         }
 
     };
@@ -674,7 +675,7 @@
             greenEnemies = game.add.group();
             greenEnemies.enableBody = true;
             greenEnemies.physicsBodyType = Phaser.Physics.ARCADE;
-            greenEnemies.createMultiple(5, 'enemy');
+            greenEnemies.createMultiple(30, 'enemy');
             // greenEnemies.setAll('anchor.x', 0.5);
             // greenEnemies.setAll('anchor.y', 0.5);
             greenEnemies.setAll('scale.x', -1);
@@ -839,7 +840,7 @@
 
     var enemy = greenEnemies.getFirstExists(false);
     if (enemy) {
-        enemy.reset(this.game.width, game.rnd.integerInRange(300, 0));
+        enemy.reset(this.game.width, game.rnd.integerInRange(700, 0));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 100;
