@@ -108,7 +108,7 @@
 
     Weapon.SingleBullet.prototype.fire = function (source) {
 
-        if (this.game.time.time < this.nextFire) { return; }
+        if (this.game.time.time >= this.nextFire) { 
 
         var x = source.x + 10;
         var y = source.y + 10;
@@ -116,6 +116,7 @@
         this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
 
         this.nextFire = this.game.time.time + this.fireRate;
+        }
 
     };
 
@@ -833,12 +834,12 @@
 
     function launchGreenEnemy() {
     var MIN_ENEMY_SPACING = 300;
-    var MAX_ENEMY_SPACING = 5000;
+    var MAX_ENEMY_SPACING = 4000;
     var ENEMY_SPEED = -200;
 
     var enemy = greenEnemies.getFirstExists(false);
     if (enemy) {
-        enemy.reset(this.game.width, game.rnd.integerInRange(500, 0));
+        enemy.reset(this.game.width, game.rnd.integerInRange(300, 0));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 100;
