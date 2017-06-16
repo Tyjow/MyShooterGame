@@ -56,6 +56,60 @@
 
     };
 
+    //////// bullet enemies //////////
+
+    var BulletBaddies = function (game, key) {
+
+        Phaser.Sprite.call(this, game, 0, 0, key);
+
+        this.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+
+        this.anchor.set(0.5);
+
+        this.checkWorldBounds = true;
+        this.outOfBoundsKill = true;
+        this.exists = false;
+        this.enableBody = true;
+
+        this.tracking = false;
+        this.scaleSpeed = 0;
+
+    };
+
+    BulletBaddies.prototype = Object.create(Phaser.Sprite.prototype);
+    BulletBaddies.prototype.constructor = BulletBaddies;
+
+    BulletBaddies.prototype.fire = function (x, y, angle, speed, gx, gy) {
+
+        gx = gx || 0;
+        gy = gy || 0;
+
+        this.reset(x, y);
+        this.scale.set(-1);
+
+        this.game.physics.arcade.velocityFromAngle(angle, speed, this.body.velocity);
+
+        this.angle = angle;
+
+        this.body.gravity.set(gx, gy);
+
+    };
+
+    BulletBaddies.prototype.update = function () {
+
+        if (this.tracking)
+        {
+            this.rotation = Math.atan2(this.body.velocity.y, this.body.velocity.x);
+        }
+
+        if (this.scaleSpeed > 0)
+        {
+            this.scale.x += this.scaleSpeed;
+            this.scale.y += this.scaleSpeed;
+        }
+
+    };
+
     var greenEnemies;
     var explosions;
     var shields;
@@ -65,6 +119,8 @@
     var fireButton;
     var score = 0;
     var scoreText;
+    var wepEnemy;
+    var damageAmountEnemies = 20;
 
     // addEnemy = function(game,x,y) {
 
@@ -129,6 +185,51 @@
         });
     };
 
+///////////////////////////// Enemy weapon ////////////////////////////
+
+    Weapon.SingleBulletEnemy = function (game) {
+
+        Phaser.Group.call(this, game, game.world, 'Enemy Bullet', false, true, Phaser.Physics.ARCADE);
+
+        this.nextFire = 0;
+        this.bulletSpeed = -600;
+        this.fireRate = 1000;
+
+        for (var i = 0; i < 64; i++)
+        {
+            this.add(new BulletBaddies(game, 'bullet5'), true);
+        }
+
+        return this;
+
+    };
+
+    Weapon.SingleBulletEnemy.prototype = Object.create(Phaser.Group.prototype);
+    Weapon.SingleBulletEnemy.prototype.constructor = Weapon.SingleBulletEnemy;
+
+    Weapon.SingleBulletEnemy.prototype.fire = function (source) {
+
+        if (this.game.time.time >= this.nextFire) {
+
+            var x = source.x - 10;
+            var y = source.y + 10;
+
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
+
+            this.nextFire = this.game.time.time + this.fireRate;
+
+        }
+
+    };
+
+    Weapon.SingleBulletEnemy.prototype.touch_bullet=function(item){
+        this.weapon.bullets.forEach(function(item){
+            if(item.alive){ 
+                item.visible=false
+            }
+        });
+    };
+
     /////////////////////////////////////////////////////////
     //  A bullet is shot both in front and behind the ship //
     /////////////////////////////////////////////////////////
@@ -155,15 +256,18 @@
 
     Weapon.FrontAndBack.prototype.fire = function (source) {
 
-        if (this.game.time.time < this.nextFire) { return; }
+        if (this.game.time.time >= this.nextFire) { 
 
-        var x = source.x + 10;
-        var y = source.y + 10;
+            var x = source.x + 10;
+            var y = source.y + 10;
 
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
-        this.getFirstExists(false).fire(x, y, 180, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 180, this.bulletSpeed, 0, 0);
 
-        this.nextFire = this.game.time.time + this.fireRate;
+            this.nextFire = this.game.time.time + this.fireRate;
+
+        }
+
 
     };
 
@@ -193,16 +297,19 @@
 
     Weapon.ThreeWay.prototype.fire = function (source) {
 
-        if (this.game.time.time < this.nextFire) { return; }
+        if (this.game.time.time >= this.nextFire) { 
 
-        var x = source.x + 10;
-        var y = source.y + 10;
+            var x = source.x + 10;
+            var y = source.y + 10;
 
-        this.getFirstExists(false).fire(x, y, 270, this.bulletSpeed, 0, 0);
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
-        this.getFirstExists(false).fire(x, y, 90, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 270, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 90, this.bulletSpeed, 0, 0);
 
-        this.nextFire = this.game.time.time + this.fireRate;
+            this.nextFire = this.game.time.time + this.fireRate;
+
+        }
+
 
     };
 
@@ -232,21 +339,24 @@
 
     Weapon.EightWay.prototype.fire = function (source) {
 
-        if (this.game.time.time < this.nextFire) { return; }
+        if (this.game.time.time >= this.nextFire) {
 
-        var x = source.x + 16;
-        var y = source.y + 10;
+            var x = source.x + 16;
+            var y = source.y + 10;
 
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
-        this.getFirstExists(false).fire(x, y, 45, this.bulletSpeed, 0, 0);
-        this.getFirstExists(false).fire(x, y, 90, this.bulletSpeed, 0, 0);
-        this.getFirstExists(false).fire(x, y, 135, this.bulletSpeed, 0, 0);
-        this.getFirstExists(false).fire(x, y, 180, this.bulletSpeed, 0, 0);
-        this.getFirstExists(false).fire(x, y, 225, this.bulletSpeed, 0, 0);
-        this.getFirstExists(false).fire(x, y, 270, this.bulletSpeed, 0, 0);
-        this.getFirstExists(false).fire(x, y, 315, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 45, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 90, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 135, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 180, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 225, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 270, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 315, this.bulletSpeed, 0, 0);
 
-        this.nextFire = this.game.time.time + this.fireRate;
+            this.nextFire = this.game.time.time + this.fireRate;
+
+        }
+
 
     };
 
@@ -276,14 +386,17 @@
 
     Weapon.ScatterShot.prototype.fire = function (source) {
 
-        if (this.game.time.time < this.nextFire) { return; }
+        if (this.game.time.time >= this.nextFire) {
 
-        var x = source.x + 16;
-        var y = (source.y + source.height / 2) + this.game.rnd.between(-10, 10);
+            var x = source.x + 16;
+            var y = (source.y + source.height / 2) + this.game.rnd.between(-10, 10);
 
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
 
-        this.nextFire = this.game.time.time + this.fireRate;
+            this.nextFire = this.game.time.time + this.fireRate;
+
+        }
+
 
     };
 
@@ -313,14 +426,17 @@
 
     Weapon.Beam.prototype.fire = function (source) {
 
-        if (this.game.time.time < this.nextFire) { return; }
+        if (this.game.time.time >= this.nextFire) {
 
-        var x = source.x + 40;
-        var y = source.y + 10;
+            var x = source.x + 40;
+            var y = source.y + 10;
 
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
 
-        this.nextFire = this.game.time.time + this.fireRate;
+            this.nextFire = this.game.time.time + this.fireRate;
+
+        }
+
 
     };
 
@@ -350,16 +466,19 @@
 
     Weapon.SplitShot.prototype.fire = function (source) {
 
-        if (this.game.time.time < this.nextFire) { return; }
+        if (this.game.time.time >= this.nextFire) {
 
-        var x = source.x + 20;
-        var y = source.y + 10;
+            var x = source.x + 20;
+            var y = source.y + 10;
 
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, -500);
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 500);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, -500);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 500);
 
-        this.nextFire = this.game.time.time + this.fireRate;
+            this.nextFire = this.game.time.time + this.fireRate;
+
+        }
+
 
     };
 
@@ -394,21 +513,24 @@
 
     Weapon.Pattern.prototype.fire = function (source) {
 
-        if (this.game.time.time < this.nextFire) { return; }
+        if (this.game.time.time >= this.nextFire) {
 
-        var x = source.x + 20;
-        var y = source.y + 10;
+            var x = source.x + 20;
+            var y = source.y + 10;
 
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, this.pattern[this.patternIndex]);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, this.pattern[this.patternIndex]);
 
-        this.patternIndex++;
+            this.patternIndex++;
 
-        if (this.patternIndex === this.pattern.length)
-        {
-            this.patternIndex = 0;
+            if (this.patternIndex === this.pattern.length)
+            {
+                this.patternIndex = 0;
+            }
+
+            this.nextFire = this.game.time.time + this.fireRate;
+
         }
 
-        this.nextFire = this.game.time.time + this.fireRate;
 
     };
 
@@ -440,15 +562,18 @@
 
     Weapon.Rockets.prototype.fire = function (source) {
 
-        if (this.game.time.time < this.nextFire) { return; }
+        if (this.game.time.time >= this.nextFire) {
 
-        var x = source.x + 10;
-        var y = source.y + 10;
+            var x = source.x + 10;
+            var y = source.y + 10;
 
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, -700);
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 700);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, -700);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 700);
 
-        this.nextFire = this.game.time.time + this.fireRate;
+            this.nextFire = this.game.time.time + this.fireRate;
+
+        }
+
 
     };
 
@@ -480,14 +605,17 @@
 
     Weapon.ScaleBullet.prototype.fire = function (source) {
 
-        if (this.game.time.time < this.nextFire) { return; }
+        if (this.game.time.time >= this.nextFire) {
 
-        var x = source.x + 10;
-        var y = source.y + 10;
+            var x = source.x + 10;
+            var y = source.y + 10;
 
-        this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
+            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
 
-        this.nextFire = this.game.time.time + this.fireRate;
+            this.nextFire = this.game.time.time + this.fireRate;
+
+        }
+
 
     };
 
@@ -573,6 +701,7 @@
         this.weapons = [];
         this.currentWeapon = 0;
         this.weaponName = null;
+        this.weaponsEnemy = [];
 
     };
 
@@ -639,6 +768,10 @@
             this.weapons.push(new Weapon.ScaleBullet(this.game));
             this.weapons.push(new Weapon.Combo1(this.game));
             this.weapons.push(new Weapon.Combo2(this.game));
+
+            wepEnemy = new Weapon.SingleBulletEnemy(this.game);
+
+            // this.weaponsEnemy.push(new Weapon.SingleBulletEnemy(this.game));
 
             this.currentWeapon = 0;
 
@@ -773,6 +906,7 @@
             //  Check collisions
             this.game.physics.arcade.overlap(this.player, greenEnemies, shipCollide, null, this);
             this.game.physics.arcade.overlap(this.weapons[this.currentWeapon], greenEnemies, hitEnemy, null, this);
+            this.game.physics.arcade.overlap(wepEnemy, this.player, enemyHitsPlayer, null, this);
 
             //  Game over?
             if (! this.player.alive && gameOver.visible === false) {
@@ -828,6 +962,19 @@
             if (this.player.alive && (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))) {
                 this.weapons[this.currentWeapon].fire();
             }
+
+            // if (this.player.alive)
+            // {
+            //     this.weaponsEnemy[0].fire(greenEnemies);
+            // }
+
+            greenEnemies.forEachAlive(function(enemy){
+                wepEnemy.fire(enemy);
+            });
+
+            // for (var i = 0; i < greenEnemies.children.length; i++){
+            //     wepEnemy.fire(greenEnemies.children[i]);
+            // }
 
         }
 
@@ -905,6 +1052,17 @@ function hitEnemy(enemy, bullet) {
     // Increase score
     score += 20 * 10;
     scoreText.text = 'Score: ' + score;
+};
+
+function enemyHitsPlayer (player, bullet) {
+    var explosion = explosions.getFirstExists(false);
+    explosion.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
+    explosion.alpha = 0.7;
+    explosion.play('explosion', 30, false, true);
+    bullet.kill();
+
+    player.damage(damageAmountEnemies);
+    shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
 };
 
 // function restart (player) {
