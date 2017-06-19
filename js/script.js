@@ -119,9 +119,10 @@
     var score = 0;
     var scoreText;
     var wepEnemy;
-    var damageAmountEnemies = 20;
+    var damageAmountEnemies = 10;
     var enemyBullets;
     var livingEnemies = [];
+    var nextFireEnemy = 0;
 
     // addEnemy = function(game,x,y) {
 
@@ -724,7 +725,7 @@
             // this.load.crossOrigin = 'anonymous';
             this.load.crossOrigin = true;
 
-            this.load.image('background', 'img/space2.png');
+            this.load.image('background', 'img/space4.jpg');
             this.load.image('foreground', 'img/spaceRoc.png');
             this.load.image('player', 'img/ship.png');
             this.load.image('enemy', 'img/ship.png');
@@ -820,7 +821,8 @@
             greenEnemies.setAll('checkWorldBounds', true);
             greenEnemies.forEach(function(enemy){
                addEnemyEmitterTrail(enemy);
-               enemy.damageAmount = 20;
+               enemy.nextFireChild = 0;
+               enemy.damageAmount = damageAmountEnemies;
                enemy.events.onKilled.add(function(){
                     enemy.trail.kill();
                 });
@@ -829,13 +831,14 @@
             enemyBullets = game.add.group();
             enemyBullets.enableBody = true;
             enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
-            enemyBullets.createMultiple(2, 'enemyBullets');      
+            enemyBullets.createMultiple(100, 'enemyBullets');      
             enemyBullets.setAll('anchor.x', 0.5);
             enemyBullets.setAll('anchor.y', 0.5);
             enemyBullets.setAll('outOfBoundsKill', true);
             enemyBullets.setAll('checkWorldBounds', true);
 
-            this.game.time.events.add(600, launchGreenEnemy);
+            //Temps de spawn enemies
+            this.game.time.events.add(500, launchGreenEnemy);
 
             //  Game over text
             gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER!', 110);
@@ -868,7 +871,7 @@
 
             
 
-            this.weaponName = this.add.bitmapText(10, 864, 'shmupfont', "Press ENTER = Next Weapon", 24);
+            // this.weaponName = this.add.bitmapText(10, 864, 'shmupfont', "Press ENTER = Next Weapon", 24);
 
             //  Cursor keys to fly + space to fire
             this.cursors = this.input.keyboard.createCursorKeys();
@@ -876,38 +879,38 @@
             this.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]);
 
             fireButton = this.input.keyboard.addKey(Phaser.Keyboard.ESC);
-            var changeKey = this.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-            changeKey.onDown.add(this.nextWeapon, this);
+            // var changeKey = this.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+            // changeKey.onDown.add(this.nextWeapon, this);
 
         },
 
-        nextWeapon: function () {
+        // nextWeapon: function () {
 
-            //  Tidy-up the current weapon
-            if (this.currentWeapon > 9)
-            {
-                this.weapons[this.currentWeapon].reset();
-            }
-            else
-            {
-                this.weapons[this.currentWeapon].visible = false;
-                this.weapons[this.currentWeapon].callAll('reset', null, 0, 0);
-                this.weapons[this.currentWeapon].setAll('exists', false);
-            }
+        //     //  Tidy-up the current weapon
+        //     if (this.currentWeapon > 9)
+        //     {
+        //         this.weapons[this.currentWeapon].reset();
+        //     }
+        //     else
+        //     {
+        //         this.weapons[this.currentWeapon].visible = false;
+        //         this.weapons[this.currentWeapon].callAll('reset', null, 0, 0);
+        //         this.weapons[this.currentWeapon].setAll('exists', false);
+        //     }
 
-            //  Activate the new one
-            this.currentWeapon++;
+        //     //  Activate the new one
+        //     this.currentWeapon++;
 
-            if (this.currentWeapon === this.weapons.length)
-            {
-                this.currentWeapon = 0;
-            }
+        //     if (this.currentWeapon === this.weapons.length)
+        //     {
+        //         this.currentWeapon = 0;
+        //     }
 
-            this.weapons[this.currentWeapon].visible = true;
+        //     this.weapons[this.currentWeapon].visible = true;
 
-            this.weaponName.text = this.weapons[this.currentWeapon].name;
+        //     this.weaponName.text = this.weapons[this.currentWeapon].name;
 
-        },
+        // },
 
         update: function () {
 
@@ -998,7 +1001,7 @@
     var enemy = greenEnemies.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
     if (enemy) {
-        enemy.reset(this.game.width, game.rnd.integerInRange(700, 0));
+        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.world.height));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 100;
@@ -1055,9 +1058,8 @@
 };
 
 function enemiesFire () {
-    var nextFireEnemy = 0;
     var bulletSpeed = -500;
-    var fireRate = 500;
+    var fireRate = 2000;
     livingEnemies.length = 0;
     greenEnemies.forEachAlive(function(enemy){
         livingEnemies.push(enemy)
@@ -1066,12 +1068,17 @@ function enemiesFire () {
     if(game.time.now >= nextFireEnemy) { 
         var bullet = enemyBullets.getFirstExists(false); 
         if(bullet && livingEnemies.length > 0) {
-            var random = game.rnd.integerInRange(0, livingEnemies.length - 1);
-            var shooter = livingEnemies[random];
-            bullet.reset(shooter.body.x - 10, shooter.body.y + 10);
-            bullet.scale.set(-1);
-            bullet.body.velocity.x = bulletSpeed;
-            nextFireEnemy = game.time.now + fireRate;
+            for (var i = 0; i < livingEnemies.length; i++){
+            var shooter = livingEnemies[i];
+            if (game.time.now >= shooter.nextFireChild) {
+
+                bullet.reset(shooter.body.x - 10, shooter.body.y + 10);
+                bullet.scale.set(-1);
+                bullet.body.velocity.x = bulletSpeed;
+                shooter.nextFireChild = game.time.now + fireRate;
+            }
+
+            }
         }
     }   
 };
@@ -1111,7 +1118,7 @@ function hitEnemy(enemy, bullet) {
     bullet.kill();
 
     // Increase score
-    score += 20 * 10;
+    score += damageAmountEnemies * 10;
     scoreText.text = 'Score: ' + score;
 };
 
