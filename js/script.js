@@ -168,8 +168,8 @@
 
         if (this.game.time.time >= this.nextFire) { 
 
-            var x = source.x + 10;
-            var y = source.y + 10;
+            var x = source.x + 60;
+            var y = source.y + 35;
 
             this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
 
@@ -729,7 +729,7 @@
             this.load.image('foreground', 'img/spaceRoc.png');
             this.load.image('midground', 'img/spacescape.png');
             this.load.image('background', 'img/space4.jpg');
-            this.load.image('player', 'img/ship.png');
+            this.load.image('player', 'img/ship2.png');
             this.load.image('enemy', 'img/ship.png');
             this.load.image('enemyBullets', 'img/bullet5.png');
             this.load.spritesheet('explosion', 'img/explode.png', 128, 128);
@@ -787,6 +787,8 @@
             }
 
             this.player = this.add.sprite(64, 200, 'player');
+            this.player.scale.x = 0.4;
+            this.player.scale.y = 0.4;
             this.player.health = 100;
 
             this.physics.arcade.enable(this.player);
@@ -974,7 +976,7 @@
 
             //  Keep the shipTrail lined up with the ship
             shipTrail.x = this.player.x;
-            shipTrail.y = this.player.y + 10;
+            shipTrail.y = this.player.y + 30;
 
             //  Fire bullet
             if (this.player.alive && (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))) {
