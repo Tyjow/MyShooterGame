@@ -65,7 +65,6 @@
         this.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
 
         this.anchor.set(0.5);
-
         this.checkWorldBounds = true;
         this.outOfBoundsKill = true;
         this.exists = false;
@@ -121,6 +120,8 @@
     var scoreText;
     var wepEnemy;
     var damageAmountEnemies = 20;
+    var enemyBullets;
+    var livingEnemies = [];
 
     // addEnemy = function(game,x,y) {
 
@@ -727,6 +728,7 @@
             this.load.image('foreground', 'img/spaceRoc.png');
             this.load.image('player', 'img/ship.png');
             this.load.image('enemy', 'img/ship.png');
+            this.load.image('enemyBullets', 'img/bullet5.png');
             this.load.spritesheet('explosion', 'img/explode.png', 128, 128);
             this.load.bitmapFont('shmupfont', 'img/shmupfont.png', 'img/shmupfont.xml');
             this.load.bitmapFont('spacefont', 'img/spacefont.png', 'img/spacefont.xml');
@@ -824,7 +826,16 @@
                 });
             });
 
-            this.game.time.events.add(1000, launchGreenEnemy);
+            enemyBullets = game.add.group();
+            enemyBullets.enableBody = true;
+            enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
+            enemyBullets.createMultiple(2, 'enemyBullets');      
+            enemyBullets.setAll('anchor.x', 0.5);
+            enemyBullets.setAll('anchor.y', 0.5);
+            enemyBullets.setAll('outOfBoundsKill', true);
+            enemyBullets.setAll('checkWorldBounds', true);
+
+            this.game.time.events.add(600, launchGreenEnemy);
 
             //  Game over text
             gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER!', 110);
@@ -906,7 +917,8 @@
             //  Check collisions
             this.game.physics.arcade.overlap(this.player, greenEnemies, shipCollide, null, this);
             this.game.physics.arcade.overlap(this.weapons[this.currentWeapon], greenEnemies, hitEnemy, null, this);
-            this.game.physics.arcade.overlap(wepEnemy, this.player, enemyHitsPlayer, null, this);
+            this.game.physics.arcade.overlap(enemyBullets, this.player, enemyHitsPlayer, null, this);
+            this.game.physics.arcade.overlap(this.weapons[this.currentWeapon], enemyBullets, hitEnemyBullet, null, this);
 
             //  Game over?
             if (! this.player.alive && gameOver.visible === false) {
@@ -968,9 +980,7 @@
             //     this.weaponsEnemy[0].fire(greenEnemies);
             // }
 
-            greenEnemies.forEachAlive(function(enemy){
-                wepEnemy.fire(enemy);
-            });
+            enemiesFire();
 
             // for (var i = 0; i < greenEnemies.children.length; i++){
             //     wepEnemy.fire(greenEnemies.children[i]);
@@ -982,17 +992,45 @@
 
     function launchGreenEnemy() {
     var MIN_ENEMY_SPACING = 300;
-    var MAX_ENEMY_SPACING = 4000;
+    var MAX_ENEMY_SPACING = 3000;
     var ENEMY_SPEED = -200;
 
     var enemy = greenEnemies.getFirstExists(false);
+    // var bullet = enemyBullets.getFirstExists(false);
     if (enemy) {
         enemy.reset(this.game.width, game.rnd.integerInRange(700, 0));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 100;
 
-       enemy.trail.start(false, 800, 1);
+        enemy.trail.start(false, 800, 1);
+
+        // var bulletX = enemy.x - 10;
+        // var bulletY = enemy.y + 10;
+        // var nextFire = 0;
+        // var bulletSpeed = -600;
+        // var fireRate = 1000;
+
+        // var tracking = false;
+        // var scaleSpeed = 0;
+
+    
+        // var gx = gx || 0;
+        // var gy = gy || 0;
+
+        // bullet.reset(bulletX, bulletY);
+
+        // if (enemy.x == this.game.width) {
+            
+        //     if (game.time.time >= nextFire) {
+        //         bullet.scale.set(-1);
+        //         bullet.body.velocity.x = bulletSpeed;
+        //         bullet.body.gravity.set(gx, gy);
+        //         nextFire = game.time.time + fireRate;
+
+        //     }
+        // }
+
 
         enemy.update = function(){
             enemy.angle = -90 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y));
@@ -1001,8 +1039,9 @@
             enemy.trail.x = enemy.x;
             enemy.trail.y = enemy.y + 10;
 
+            
           //  Kill enemies once they go off screen
-              if (enemy.y > this.game.height + 200) {
+              if (enemy.x > this.game.width) {
                enemy.kill();
              }
        }
@@ -1013,6 +1052,28 @@
 
    //  Send another enemy soon
     greenEnemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchGreenEnemy);
+};
+
+function enemiesFire () {
+    var nextFireEnemy = 0;
+    var bulletSpeed = -500;
+    var fireRate = 500;
+    livingEnemies.length = 0;
+    greenEnemies.forEachAlive(function(enemy){
+        livingEnemies.push(enemy)
+    });
+
+    if(game.time.now >= nextFireEnemy) { 
+        var bullet = enemyBullets.getFirstExists(false); 
+        if(bullet && livingEnemies.length > 0) {
+            var random = game.rnd.integerInRange(0, livingEnemies.length - 1);
+            var shooter = livingEnemies[random];
+            bullet.reset(shooter.body.x - 10, shooter.body.y + 10);
+            bullet.scale.set(-1);
+            bullet.body.velocity.x = bulletSpeed;
+            nextFireEnemy = game.time.now + fireRate;
+        }
+    }   
 };
 
 function addEnemyEmitterTrail(enemy) {
@@ -1052,6 +1113,15 @@ function hitEnemy(enemy, bullet) {
     // Increase score
     score += 20 * 10;
     scoreText.text = 'Score: ' + score;
+};
+
+function hitEnemyBullet(enemy, bullet) {
+    var explosion = explosions.getFirstExists(false);
+    explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
+    explosion.body.velocity.y = enemy.body.velocity.y;
+    explosion.alpha = 0.7;
+    explosion.play('explosion', 30, false, true);
+    bullet.kill();
 };
 
 function enemyHitsPlayer (player, bullet) {
