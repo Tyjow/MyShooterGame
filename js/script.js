@@ -694,6 +694,7 @@
     var PhaserGame = function () {
 
         this.background = null;
+        this.midground = null;
         this.foreground = null;
 
         this.player = null;
@@ -725,8 +726,9 @@
             // this.load.crossOrigin = 'anonymous';
             this.load.crossOrigin = true;
 
-            this.load.image('background', 'img/space4.jpg');
             this.load.image('foreground', 'img/spaceRoc.png');
+            this.load.image('midground', 'img/spacescape.png');
+            this.load.image('background', 'img/space4.jpg');
             this.load.image('player', 'img/ship.png');
             this.load.image('enemy', 'img/ship.png');
             this.load.image('enemyBullets', 'img/bullet5.png');
@@ -757,7 +759,8 @@
             this.background = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
             // this.background.scale.x = 1.1;
             // this.background.scale.y = 1.1;
-            this.background.autoScroll(-40, 0);
+            this.midground = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'midground');
+            this.midground.autoScroll(-40, 0);
 
             this.weapons.push(new Weapon.SingleBullet(this.game));
             this.weapons.push(new Weapon.FrontAndBack(this.game));
@@ -1001,7 +1004,7 @@
     var enemy = greenEnemies.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
     if (enemy) {
-        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.world.height));
+        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 100;
