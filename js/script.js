@@ -127,6 +127,7 @@
     var removeTextXp;
     var gainXpPlayer;
     var getXpPlayer;
+    var tweenPlayer;
 
     // addEnemy = function(game,x,y) {
 
@@ -730,7 +731,7 @@
             // this.load.crossOrigin = 'anonymous';
             this.load.crossOrigin = true;
 
-            this.load.image('foreground', 'img/spaceRoc.png');
+            this.load.image('foreground', 'img/spaceRoc2.png');
             this.load.image('midground', 'img/spacescape.png');
             this.load.image('background', 'img/space4.jpg');
             // this.load.image('player', 'img/ship2.png');
@@ -739,7 +740,7 @@
             this.load.image('enemyBullets', 'img/bullet01.png');
             this.load.spritesheet('explosion', 'img/explode.png', 128, 128);
             this.load.bitmapFont('shmupfont', 'img/shmupfont.png', 'img/shmupfont.xml');
-            this.load.bitmapFont('spacefont', 'img/spacefont.png', 'img/spacefont.xml');
+            this.load.bitmapFont('spacefont', 'img/tyjowfont.png', 'img/tyjowfont.xml');
 
             for (var i = 1; i <= 11; i++)
             {
@@ -800,6 +801,7 @@
             this.player.level = 1;
             this.player.animations.add('walkBottom', [6, 5, 4, 3, 2 ,1 ,0], 10, true);
             this.player.animations.add('walkTop', [8, 9, 10, 11, 12 ,13 ,14 ,15], 10, true);
+            this.player.alpha = 1;
 
             this.physics.arcade.enable(this.player);
 
@@ -839,9 +841,9 @@
                enemy.nextFireChild = 0;
                enemy.damageAmount = damageAmountEnemies;
                enemy.events.onKilled.add(function(){
-                    removeTextXp = this.game.add.text(enemy.x, enemy.y, 'Xp: +' + greenEnemiesXp, { font: '10px Arial', fill: '#4dffa6' });    
+                      
                     enemy.trail.kill();
-                    this.game.add.tween(removeTextXp).to( { alpha: 0 }, 1200, Phaser.Easing.Linear.None, true);
+                    
                 });
             });
 
@@ -874,16 +876,20 @@
             });
 
             //  Shields stat
-            shields = this.game.add.bitmapText(this.game.world.width - 250, 10, 'spacefont', 'Shield: ' + this.player.health +'%', 50);
+            shields = this.game.add.bitmapText(10, 10, 'spacefont', 'Shield: ' + this.player.health +'%', 40);
 
-            level = this.game.add.text(this.game.world.width / 4, 10, 'Level: ' + this.player.level, { font: '20px Arial', fill: '#fff' });
+            level = this.game.add.bitmapText(this.game.world.width / 4, 10, 'spacefont', 'Level: ' + this.player.level, 40);
 
-            experience = this.game.add.text(this.game.world.width / 2, 10, 'Exp: ' + this.player.exp, { font: '20px Arial', fill: '#fff' });
+            experience = this.game.add.bitmapText(this.game.world.width / 2, 10, 'spacefont', 'Exp: ' + this.player.exp, 40);
 
             //  Score
-            scoreText = this.game.add.bitmapText(10, 10, 'spacefont', 'Score: ' + score, 50);
+            scoreText = this.game.add.bitmapText(this.game.world.width, 10, 'spacefont', 'Score: ' + score, 40);
 
-            this.foreground = this.add.tileSprite(0, 0, this.game.width, this.game.height, 'foreground');
+            // bitmaptext align right
+            scoreText.anchor.set(1,0);
+
+            this.foreground = this.add.tileSprite(0, this.game.world.height, this.game.width, this.game.height, 'foreground');
+            this.foreground.anchor.set(0,0.7);
             this.foreground.autoScroll(-100, 0);
 
             // this.foreground = this.add.sprite(1920, 700, 'foreground');
@@ -1040,7 +1046,7 @@
     var enemy = greenEnemies.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
     if (enemy) {
-        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height));
+        enemy.reset(this.game.width, game.rnd.integerInRange(0, window.innerHeight - 20));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 100;
@@ -1156,6 +1162,12 @@ function hitEnemy(enemy, bullet) {
     enemy.kill();
     bullet.kill();
 
+    // text xp above ennemies 
+    removeTextXp = this.game.add.text(enemy.x, enemy.y, 'exp: +' + greenEnemiesXp, { font: '12px Arial', fill: '#4dffa6' });  
+    removeTextXp.stroke = "#000";
+    removeTextXp.strokeThickness = 2;
+    this.game.add.tween(removeTextXp).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+
     // add Exp
     this.player.exp += greenEnemiesXp;
     experience.text = 'Exp: ' + this.player.exp;
@@ -1180,6 +1192,12 @@ function enemyHitsPlayer (player, bullet) {
     explosion.alpha = 0.7;
     explosion.play('explosion', 30, false, true);
     bullet.kill();
+
+    game.time.events.add(400, function() {  
+        tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5 }, 200, "Linear", true, 0, 10);
+        /*tweenPlayer.yoyo(true, 200);*/
+    }, this);
+    
 
     player.damage(damageAmountEnemies);
     shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
