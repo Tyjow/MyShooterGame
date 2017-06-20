@@ -1147,7 +1147,7 @@ function hitEnemy(enemy, bullet) {
 
     // add Exp
     this.player.exp += 10;
-    experience.text = 'Xp: ' + this.player.exp;
+    experience.text = 'Exp: ' + this.player.exp;
 
     // Increase score
     score += damageAmountEnemies * 10;
