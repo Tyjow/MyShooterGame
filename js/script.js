@@ -117,12 +117,14 @@
     var gameOver;
     var fireButton;
     var score = 0;
+    var gainPlayerXp;
     var scoreText;
     var wepEnemy;
     var damageAmountEnemies = 10;
     var enemyBullets;
     var livingEnemies = [];
     var nextFireEnemy = 0;
+    var removeTextXp;
 
     // addEnemy = function(game,x,y) {
 
@@ -792,6 +794,7 @@
             this.player.scale.y = 0.4;
             this.player.health = 100;
             this.player.frame = 7;
+            this.player.exp = 0;
             this.player.animations.add('walkBottom', [6, 5, 4, 3, 2 ,1 ,0], 10, true);
             this.player.animations.add('walkTop', [8, 9, 10, 11, 12 ,13 ,14 ,15], 10, true);
 
@@ -832,7 +835,7 @@
                addEnemyEmitterTrail(enemy);
                enemy.nextFireChild = 0;
                enemy.damageAmount = damageAmountEnemies;
-               enemy.events.onKilled.add(function(){
+               enemy.events.onKilled.add(function(){      
                     enemy.trail.kill();
                 });
             });
@@ -867,6 +870,8 @@
 
             //  Shields stat
             shields = this.game.add.bitmapText(this.game.world.width - 250, 10, 'spacefont', 'Shield: ' + this.player.health +'%', 50);
+
+            experience = this.game.add.text(this.game.world.width / 2, 10, 'Xp: ' + this.player.exp, { font: '20px Arial', fill: '#fff' });
 
             //  Score
             scoreText = this.game.add.bitmapText(10, 10, 'spacefont', 'Score: ' + score, 50);
@@ -1083,7 +1088,7 @@ function enemiesFire () {
     });
 
     if(game.time.now >= nextFireEnemy) { 
-        var bullet = enemyBullets.getFirstExists(false); 
+        var bullet = enemyBullets.getFirstExists(false);
         if(bullet && livingEnemies.length > 0) {
             for (var i = 0; i < livingEnemies.length; i++){
             var shooter = livingEnemies[i];
@@ -1133,6 +1138,16 @@ function hitEnemy(enemy, bullet) {
     explosion.play('explosion', 30, false, true);
     enemy.kill();
     bullet.kill();
+
+    removeTextXp = this.game.add.text(enemy.x, enemy.y, 'Exp: +' + 10, { font: '10px Arial', fill: 'yellow' });
+    enemy.showXp = removeTextXp;
+    this.game.time.events.add(500, function() {
+        this.game.add.tween(removeTextXp).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true);
+    }, this);
+
+    // add Exp
+    this.player.exp += 10;
+    experience.text = 'Xp: ' + this.player.exp;
 
     // Increase score
     score += damageAmountEnemies * 10;
