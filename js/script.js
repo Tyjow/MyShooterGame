@@ -871,7 +871,7 @@
             //  Shields stat
             shields = this.game.add.bitmapText(this.game.world.width - 250, 10, 'spacefont', 'Shield: ' + this.player.health +'%', 50);
 
-            experience = this.game.add.text(this.game.world.width / 2, 10, 'Xp: ' + this.player.exp, { font: '20px Arial', fill: '#fff' });
+            experience = this.game.add.text(this.game.world.width / 2, 10, 'Exp: ' + this.player.exp, { font: '20px Arial', fill: '#fff' });
 
             //  Score
             scoreText = this.game.add.bitmapText(10, 10, 'spacefont', 'Score: ' + score, 50);
