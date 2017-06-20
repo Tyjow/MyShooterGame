@@ -110,6 +110,7 @@
     };
 
     var greenEnemies;
+    var greenEnemiesXp = 10;
     var explosions;
     var shields;
     var shipTrail;
@@ -117,7 +118,6 @@
     var gameOver;
     var fireButton;
     var score = 0;
-    var gainPlayerXp;
     var scoreText;
     var wepEnemy;
     var damageAmountEnemies = 10;
@@ -125,6 +125,8 @@
     var livingEnemies = [];
     var nextFireEnemy = 0;
     var removeTextXp;
+    var gainXpPlayer;
+    var getXpPlayer;
 
     // addEnemy = function(game,x,y) {
 
@@ -795,6 +797,7 @@
             this.player.health = 100;
             this.player.frame = 7;
             this.player.exp = 0;
+            this.player.level = 1;
             this.player.animations.add('walkBottom', [6, 5, 4, 3, 2 ,1 ,0], 10, true);
             this.player.animations.add('walkTop', [8, 9, 10, 11, 12 ,13 ,14 ,15], 10, true);
 
@@ -836,9 +839,9 @@
                enemy.nextFireChild = 0;
                enemy.damageAmount = damageAmountEnemies;
                enemy.events.onKilled.add(function(){
-                    removeTextXp = this.game.add.text(enemy.x, enemy.y, 'Xp: +' + 10, { font: '10px Arial', fill: 'yellow' });    
+                    removeTextXp = this.game.add.text(enemy.x, enemy.y, 'Xp: +' + greenEnemiesXp, { font: '10px Arial', fill: '#4dffa6' });    
                     enemy.trail.kill();
-                    this.game.add.tween(removeTextXp).to( { alpha: 0 }, 1000, Phaser.Easing.Linear.None, true);
+                    this.game.add.tween(removeTextXp).to( { alpha: 0 }, 1200, Phaser.Easing.Linear.None, true);
                 });
             });
 
@@ -872,6 +875,8 @@
 
             //  Shields stat
             shields = this.game.add.bitmapText(this.game.world.width - 250, 10, 'spacefont', 'Shield: ' + this.player.health +'%', 50);
+
+            level = this.game.add.text(this.game.world.width - 900, 10, 'Level: ' + this.player.level, { font: '20px Arial', fill: '#fff' });
 
             experience = this.game.add.text(this.game.world.width / 2, 10, 'Exp: ' + this.player.exp, { font: '20px Arial', fill: '#fff' });
 
@@ -1006,6 +1011,16 @@
             // {
             //     this.weaponsEnemy[0].fire(greenEnemies);
             // }
+
+            gainXpPlayer = 50 * greenEnemiesXp;
+
+            getXpPlayer = this.player.level * gainXpPlayer;
+
+            if (this.player.exp == getXpPlayer) {
+                this.player.level++;
+                level.text = 'Level: ' + this.player.level;
+            }
+
 
             enemiesFire();
 
@@ -1142,7 +1157,7 @@ function hitEnemy(enemy, bullet) {
     bullet.kill();
 
     // add Exp
-    this.player.exp += 10;
+    this.player.exp += greenEnemiesXp;
     experience.text = 'Exp: ' + this.player.exp;
 
     // Increase score
