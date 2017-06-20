@@ -835,8 +835,10 @@
                addEnemyEmitterTrail(enemy);
                enemy.nextFireChild = 0;
                enemy.damageAmount = damageAmountEnemies;
-               enemy.events.onKilled.add(function(){      
+               enemy.events.onKilled.add(function(){
+                    removeTextXp = this.game.add.text(enemy.x, enemy.y, 'Xp: +' + 10, { font: '10px Arial', fill: 'yellow' });    
                     enemy.trail.kill();
+                    this.game.add.tween(removeTextXp).to( { alpha: 0 }, 1000, Phaser.Easing.Linear.None, true);
                 });
             });
 
@@ -1138,12 +1140,6 @@ function hitEnemy(enemy, bullet) {
     explosion.play('explosion', 30, false, true);
     enemy.kill();
     bullet.kill();
-
-    removeTextXp = this.game.add.text(enemy.x, enemy.y, 'Exp: +' + 10, { font: '10px Arial', fill: 'yellow' });
-    enemy.showXp = removeTextXp;
-    this.game.time.events.add(500, function() {
-        this.game.add.tween(removeTextXp).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true);
-    }, this);
 
     // add Exp
     this.player.exp += 10;
