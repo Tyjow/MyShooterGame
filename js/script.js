@@ -31,7 +31,7 @@
         gy = gy || 0;
 
         this.reset(x, y);
-        this.scale.set(1);
+        this.scale.set(0.3);
 
         this.game.physics.arcade.velocityFromAngle(angle, speed, this.body.velocity);
 
@@ -154,7 +154,7 @@
 
         for (var i = 0; i < 64; i++)
         {
-            this.add(new Bullet(game, 'bullet5'), true);
+            this.add(new Bullet(game, 'bullet01'), true);
         }
 
         return this;
@@ -168,8 +168,8 @@
 
         if (this.game.time.time >= this.nextFire) { 
 
-            var x = source.x + 60;
-            var y = source.y + 35;
+            var x = source.x + 70;
+            var y = source.y + 40;
 
             this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
 
@@ -729,16 +729,17 @@
             this.load.image('foreground', 'img/spaceRoc.png');
             this.load.image('midground', 'img/spacescape.png');
             this.load.image('background', 'img/space4.jpg');
-            this.load.image('player', 'img/ship2.png');
-            this.load.image('enemy', 'img/ship.png');
-            this.load.image('enemyBullets', 'img/bullet5.png');
+            // this.load.image('player', 'img/ship2.png');
+            this.load.image('enemy', 'img/sat1.png');
+            this.load.spritesheet('player', 'img/player-ship.png', 200, 170);
+            this.load.image('enemyBullets', 'img/bullet01.png');
             this.load.spritesheet('explosion', 'img/explode.png', 128, 128);
             this.load.bitmapFont('shmupfont', 'img/shmupfont.png', 'img/shmupfont.xml');
             this.load.bitmapFont('spacefont', 'img/spacefont.png', 'img/spacefont.xml');
 
             for (var i = 1; i <= 11; i++)
             {
-                this.load.image('bullet' + i, 'img/bullet' + i + '.png');
+                this.load.image('bullet0' + i, 'img/bullet0' + i + '.png');
             }
 
             //  Note: Graphics are not for use in any commercial project
@@ -790,6 +791,9 @@
             this.player.scale.x = 0.4;
             this.player.scale.y = 0.4;
             this.player.health = 100;
+            this.player.frame = 7;
+            this.player.animations.add('walkBottom', [6, 5, 4, 3, 2 ,1 ,0], 10, true);
+            this.player.animations.add('walkTop', [8, 9, 10, 11, 12 ,13 ,14 ,15], 10, true);
 
             this.physics.arcade.enable(this.player);
 
@@ -819,8 +823,8 @@
             greenEnemies.createMultiple(30, 'enemy');
             // greenEnemies.setAll('anchor.x', 0.5);
             // greenEnemies.setAll('anchor.y', 0.5);
-            greenEnemies.setAll('scale.x', -1);
-            // greenEnemies.setAll('scale.y', 0.5);
+            greenEnemies.setAll('scale.x', -0.3);
+            greenEnemies.setAll('scale.y', 0.3);
             // greenEnemies.setAll('angle', 180);
             greenEnemies.setAll('outOfBoundsKill', true);
             greenEnemies.setAll('checkWorldBounds', true);
@@ -945,6 +949,7 @@
                       spaceRestart.detach();
                       // restart();
                       this.game.state.restart();
+                      score = 0;
                     }
                 }
             }
@@ -963,10 +968,17 @@
             if (this.cursors.up.isDown)
             {
                 this.player.body.velocity.y = -this.speed;
+                this.player.play('walkTop');
+                this.player.frame = 15;
             }
             else if (this.cursors.down.isDown)
             {
                 this.player.body.velocity.y = this.speed;
+                this.player.play('walkBottom');
+                this.player.frame = 0;
+            }
+            else {
+                this.player.frame = 7;
             }
 
             if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
@@ -1077,8 +1089,8 @@ function enemiesFire () {
             var shooter = livingEnemies[i];
             if (game.time.now >= shooter.nextFireChild) {
 
-                bullet.reset(shooter.body.x - 10, shooter.body.y + 10);
-                bullet.scale.set(-1);
+                bullet.reset(shooter.body.x - 10, shooter.body.y + 15);
+                bullet.scale.set(-0.3);
                 bullet.body.velocity.x = bulletSpeed;
                 shooter.nextFireChild = game.time.now + fireRate;
             }
