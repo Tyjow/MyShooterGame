@@ -56,59 +56,6 @@
 
     };
 
-    //////// bullet enemies //////////
-
-    var BulletBaddies = function (game, key) {
-
-        Phaser.Sprite.call(this, game, 0, 0, key);
-
-        this.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
-
-        this.anchor.set(0.5);
-        this.checkWorldBounds = true;
-        this.outOfBoundsKill = true;
-        this.exists = false;
-        this.enableBody = true;
-
-        this.tracking = false;
-        this.scaleSpeed = 0;
-
-    };
-
-    BulletBaddies.prototype = Object.create(Phaser.Sprite.prototype);
-    BulletBaddies.prototype.constructor = BulletBaddies;
-
-    BulletBaddies.prototype.fire = function (x, y, angle, speed, gx, gy) {
-
-        gx = gx || 0;
-        gy = gy || 0;
-
-        this.reset(x, y);
-        this.scale.set(-1);
-
-        this.game.physics.arcade.velocityFromAngle(angle, speed, this.body.velocity);
-
-        this.angle = angle;
-
-        this.body.gravity.set(gx, gy);
-
-    };
-
-    BulletBaddies.prototype.update = function () {
-
-        if (this.tracking)
-        {
-            this.rotation = Math.atan2(this.body.velocity.y, this.body.velocity.x);
-        }
-
-        if (this.scaleSpeed > 0)
-        {
-            this.scale.x += this.scaleSpeed;
-            this.scale.y += this.scaleSpeed;
-        }
-
-    };
-
     var greenEnemies;
     var greenEnemiesXp = 10;
     var explosions;
@@ -131,6 +78,7 @@
     var levelSpeedOne = -40;
     var levelSpeedTwo = -100;
     var nextIncrement = 0;
+    var nextFire = 0;
 
     // addEnemy = function(game,x,y) {
 
@@ -188,51 +136,6 @@
     };
 
     Weapon.SingleBullet.prototype.touch_bullet=function(item){
-        this.weapon.bullets.forEach(function(item){
-            if(item.alive){ 
-                item.visible=false
-            }
-        });
-    };
-
-///////////////////////////// Enemy weapon ////////////////////////////
-
-    Weapon.SingleBulletEnemy = function (game) {
-
-        Phaser.Group.call(this, game, game.world, 'Enemy Bullet', false, true, Phaser.Physics.ARCADE);
-
-        this.nextFire = 0;
-        this.bulletSpeed = -600;
-        this.fireRate = 1000;
-
-        for (var i = 0; i < 64; i++)
-        {
-            this.add(new BulletBaddies(game, 'bullet5'), true);
-        }
-
-        return this;
-
-    };
-
-    Weapon.SingleBulletEnemy.prototype = Object.create(Phaser.Group.prototype);
-    Weapon.SingleBulletEnemy.prototype.constructor = Weapon.SingleBulletEnemy;
-
-    Weapon.SingleBulletEnemy.prototype.fire = function (source) {
-
-        if (this.game.time.time >= this.nextFire) {
-
-            var x = source.x - 10;
-            var y = source.y + 10;
-
-            this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
-
-            this.nextFire = this.game.time.time + this.fireRate;
-
-        }
-
-    };
-
-    Weapon.SingleBulletEnemy.prototype.touch_bullet=function(item){
         this.weapon.bullets.forEach(function(item){
             if(item.alive){ 
                 item.visible=false
@@ -738,8 +641,10 @@
             this.load.image('midground', 'img/spacescape.png');
             this.load.image('background', 'img/space4.jpg');
             // this.load.image('player', 'img/ship2.png');
-            this.load.image('enemy', 'img/sat1.png');
+            // this.load.image('enemy', 'img/sat1.png');
             this.load.spritesheet('player', 'img/player-ship.png', 200, 170);
+            this.load.spritesheet('enemy', 'img/enemies-sat1.png', 94, 101);
+            this.load.image('playerBullets', 'img/bullet01.png');
             this.load.image('enemyBullets', 'img/bullet01.png');
             this.load.spritesheet('explosion', 'img/explode.png', 128, 128);
             this.load.bitmapFont('shmupfont', 'img/shmupfont.png', 'img/shmupfont.xml');
@@ -785,7 +690,7 @@
             this.weapons.push(new Weapon.Combo1(this.game));
             this.weapons.push(new Weapon.Combo2(this.game));
 
-            wepEnemy = new Weapon.SingleBulletEnemy(this.game);
+            // wepEnemy = new Weapon.SingleBulletEnemy(this.game);
 
             // this.weaponsEnemy.push(new Weapon.SingleBulletEnemy(this.game));
 
@@ -842,6 +747,8 @@
             greenEnemies.setAll('outOfBoundsKill', true);
             greenEnemies.setAll('checkWorldBounds', true);
             greenEnemies.forEach(function(enemy){
+               enemy.animations.add('enemyFly', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18], 15, true);
+               enemy.animations.play('enemyFly');
                addEnemyEmitterTrail(enemy);
                enemy.nextFireChild = 0;
                enemy.damageAmount = damageAmountEnemies;
@@ -851,6 +758,15 @@
                     
                 });
             });
+
+            playerBullets = game.add.group();
+            playerBullets.enableBody = true;
+            playerBullets.physicsBodyType = Phaser.Physics.ARCADE;
+            playerBullets.createMultiple(15, 'playerBullets');      
+            playerBullets.setAll('anchor.x', 0.5);
+            playerBullets.setAll('anchor.y', 0.5);
+            playerBullets.setAll('outOfBoundsKill', true);
+            playerBullets.setAll('checkWorldBounds', true);
 
             enemyBullets = game.add.group();
             enemyBullets.enableBody = true;
@@ -951,9 +867,9 @@
 
             //  Check collisions
             this.game.physics.arcade.overlap(this.player, greenEnemies, shipCollide, null, this);
-            this.game.physics.arcade.overlap(this.weapons[this.currentWeapon], greenEnemies, hitEnemy, null, this);
+            this.game.physics.arcade.overlap(playerBullets, greenEnemies, hitEnemy, null, this);
             this.game.physics.arcade.overlap(enemyBullets, this.player, enemyHitsPlayer, null, this);
-            this.game.physics.arcade.overlap(this.weapons[this.currentWeapon], enemyBullets, hitEnemyBullet, null, this);
+            this.game.physics.arcade.overlap(playerBullets, enemyBullets, hitEnemyBullet, null, this);
 
             //  Game over?
             if (! this.player.alive && gameOver.visible === false) {
@@ -1012,7 +928,8 @@
 
             if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
             {
-                this.weapons[this.currentWeapon].fire(this.player);
+                // this.weapons[this.currentWeapon].fire(this.player);
+                fireBullet(this.player);
             }
 
             //  Keep the shipTrail lined up with the ship
@@ -1021,7 +938,8 @@
 
             //  Fire bullet
             if (this.player.alive && (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))) {
-                this.weapons[this.currentWeapon].fire();
+                // this.weapons[this.currentWeapon].fire();
+                fireBullet(this.player);
             }
 
             // if (this.player.alive)
@@ -1063,6 +981,26 @@
         }
 
     };
+
+    function fireBullet(player) {
+        //  Grab the first bullet we can from the pool
+        var bullet = playerBullets.getFirstExists(false);
+        var bulletSpeed = 600;
+        var fireRate = 100;
+
+        if (game.time.now >= nextFire) {
+            if (bullet)
+                {
+                    //  And fire it
+                    bullet.reset(player.x + 70, player.y + 40);
+                    bullet.body.velocity.x = bulletSpeed;
+                    bullet.scale.set(0.3);
+                    // game.physics.arcade.velocityFromAngle(0, bulletSpeed, bullet.body.velocity);
+
+                }
+            nextFire = game.time.now + fireRate;
+        }
+    }
 
     function launchGreenEnemy() {
     var MIN_ENEMY_SPACING = 300;
