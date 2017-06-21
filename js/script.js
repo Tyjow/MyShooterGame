@@ -1147,6 +1147,10 @@ function shipCollide(player, enemy) {
     explosion.play('explosion', 30, false, true);
     enemy.kill();
 
+    // flash effect on hit
+    tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5, tint: 0xf1f1f1 }, 50, "Linear", true, 0, 10);
+    tweenPlayer.yoyo(true, 0);
+
     player.damage(enemy.damageAmount);
     shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
 
@@ -1193,11 +1197,9 @@ function enemyHitsPlayer (player, bullet) {
     explosion.play('explosion', 30, false, true);
     bullet.kill();
 
-    game.time.events.add(400, function() {  
-        tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5 }, 200, "Linear", true, 0, 10);
-        /*tweenPlayer.yoyo(true, 200);*/
-    }, this);
-    
+    // flash effect on hit
+    tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5, tint: 0xf1f1f1 }, 50, "Linear", true, 0, 10);
+    tweenPlayer.yoyo(true, 0);
 
     player.damage(damageAmountEnemies);
     shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
