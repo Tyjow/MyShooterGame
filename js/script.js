@@ -992,13 +992,19 @@
             {
                 this.player.body.velocity.y = -this.speed;
                 this.player.play('walkTop');
-                this.player.frame = 15;
+                if (this.player.animations.currentFrame.index == 15) {
+                    this.player.animations.currentAnim.setFrame(15, false);
+                }
+                
             }
             else if (this.cursors.down.isDown)
             {
                 this.player.body.velocity.y = this.speed;
                 this.player.play('walkBottom');
-                this.player.frame = 0;
+                if (this.player.animations.currentFrame.index == 0) {
+                    this.player.animations.currentAnim.setFrame(0, false);
+                }
+
             }
             else {
                 this.player.frame = 7;
