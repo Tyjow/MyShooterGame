@@ -128,6 +128,8 @@
     var gainXpPlayer;
     var getXpPlayer;
     var tweenPlayer;
+    var levelSpeedOne = -40;
+    var levelSpeedTwo = -100;
 
     // addEnemy = function(game,x,y) {
 
@@ -761,12 +763,13 @@
             this.game.scale.pageAlignVeritcally = true;
             this.game.scale.refresh();
 
+
             // this.background = this.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
             this.background = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
             // this.background.scale.x = 1.1;
             // this.background.scale.y = 1.1;
             this.midground = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'midground');
-            this.midground.autoScroll(-40, 0);
+            this.midground.autoScroll(levelSpeedOne, 0);
 
             this.weapons.push(new Weapon.SingleBullet(this.game));
             this.weapons.push(new Weapon.FrontAndBack(this.game));
@@ -891,7 +894,7 @@
 
             this.foreground = this.add.tileSprite(0, this.game.world.height, this.game.width, this.game.height, 'foreground');
             this.foreground.anchor.set(0,0.7);
-            this.foreground.autoScroll(-100, 0);
+            this.foreground.autoScroll(levelSpeedTwo, 0);
 
             // this.foreground = this.add.sprite(1920, 700, 'foreground');
             // this.foreground.animations.add('swim', Phaser.Animation.generateFrameNames('foreground', 0), 30, true);
@@ -1028,6 +1031,13 @@
                 level.text = 'Level: ' + this.player.level;
             }
 
+            if (score == 5000) {
+                levelSpeedOne = 0;
+                levelSpeedTwo = 0;
+                this.midground.autoScroll(levelSpeedOne, 0);
+                this.foreground.autoScroll(levelSpeedTwo, 0);
+            }
+
 
             enemiesFire();
 
@@ -1149,7 +1159,7 @@ function shipCollide(player, enemy) {
     enemy.kill();
 
     // flash effect on hit
-    tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5, tint: 0xf1f1f1 }, 50, "Linear", true, 0, 10);
+    tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5, tint: 0xf1f1f1 }, 50, "Linear", true, 0, 6);
     tweenPlayer.yoyo(true, 0);
     tweenPlayer.onComplete.add(function() {  
         tweenPlayer.stop();
@@ -1202,7 +1212,7 @@ function enemyHitsPlayer (player, bullet) {
     bullet.kill();
 
     // flash effect on hit
-    tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5, tint: 0xf1f1f1 }, 50, "Linear", true, 0, 10);
+    tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5, tint: 0xf1f1f1 }, 50, "Linear", true, 0, 6);
     tweenPlayer.yoyo(true, 0);
     tweenPlayer.onComplete.add(function() {  
         tweenPlayer.stop();
