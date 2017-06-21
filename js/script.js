@@ -130,6 +130,7 @@
     var tweenPlayer;
     var levelSpeedOne = -40;
     var levelSpeedTwo = -100;
+    var nextIncrement = 0;
 
     // addEnemy = function(game,x,y) {
 
@@ -1031,13 +1032,21 @@
                 level.text = 'Level: ' + this.player.level;
             }
 
-            if (score == 5000) {
-                levelSpeedOne = 0;
-                levelSpeedTwo = 0;
-                this.midground.autoScroll(levelSpeedOne, 0);
-                this.foreground.autoScroll(levelSpeedTwo, 0);
+            if (score >= 5000) {
+                if (game.time.now >= nextIncrement) {
+                    if (nextIncrement == 0) {
+                        nextIncrement = game.time.now;
+                    }
+                    smoothStopScroll();
+                    nextIncrement+=1000;
+                    levelSpeedOne = Math.min(levelSpeedOne,0);
+                    levelSpeedTwo = Math.min(levelSpeedTwo,0);
+                    // console.log(levelSpeedTwo);
+                }
             }
 
+            this.midground.autoScroll(levelSpeedOne, 0);
+            this.foreground.autoScroll(levelSpeedTwo, 0);
 
             enemiesFire();
 
@@ -1220,6 +1229,11 @@ function enemyHitsPlayer (player, bullet) {
 
     player.damage(damageAmountEnemies);
     shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
+};
+
+function smoothStopScroll(){
+    levelSpeedOne = levelSpeedTwo + 4;
+    levelSpeedTwo = levelSpeedTwo + 10;
 };
 
 // function restart (player) {
