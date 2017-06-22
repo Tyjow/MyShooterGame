@@ -64,6 +64,7 @@
     var shipTrail;
     var greenEnemyLaunchTimer;
     var gameOver;
+    var endLevelOne;
     var fireButton;
     var score = 0;
     var scoreText;
@@ -826,6 +827,11 @@
             gameOver.anchor.setTo(0.5, 0.5);
             gameOver.visible = false;
 
+            // End Level Text
+            endLevelOne = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'Level Complete!', 110);
+            endLevelOne.anchor.setTo(0.5, 0.5);
+            endLevelOne.visible = false;
+
             //  An explosion pool
             explosions = game.add.group();
             explosions.enableBody = true;
@@ -989,7 +995,7 @@
             }
 
             // set exp to get for level up
-            gainXpPlayer = 50 * greenEnemiesXp;
+            gainXpPlayer = 75 * greenEnemiesXp;
 
             getXpPlayer = this.player.level * gainXpPlayer;
 
@@ -1001,18 +1007,17 @@
                 AnimlevelUp(this.player);
             }
 
+            if (this.player.level >= 3) {
+                playerBullets.forEachAlive(function(bullet){
+                    bullet.scale.set(0.4);
+                });
+            }
+
             // score condition end level 1
-            if (score >= 10000) {
-                if (game.time.now >= nextIncrement) {
-                    if (nextIncrement == 0) {
-                        nextIncrement = game.time.now;
-                    }
-                    smoothStopScroll();
-                    nextIncrement+=1000;
-                    levelSpeedOne = Math.min(levelSpeedOne,0);
-                    levelSpeedTwo = Math.min(levelSpeedTwo,0);
-                    // console.log(levelSpeedTwo);
-                }
+            smoothStopScroll();
+
+            if (levelSpeedOne == 0 && levelSpeedTwo == 0) {
+                levelCleared();
             }
 
             this.midground.autoScroll(levelSpeedOne, 0);
@@ -1047,7 +1052,7 @@ function fireBullet(player) {
 
 function launchGreenEnemy() {
     var MIN_ENEMY_SPACING = 300;
-    var MAX_ENEMY_SPACING = 3000;
+    var MAX_ENEMY_SPACING = 1000;
     var ENEMY_SPEED = -200;
 
     var enemy = greenEnemies.getFirstExists(false);
@@ -1082,7 +1087,7 @@ function launchGreenEnemy() {
 
 function launchEnnemiesMain() {
     var MIN_ENEMY_SPACING = 300;
-    var MAX_ENEMY_SPACING = 3000;
+    var MAX_ENEMY_SPACING = 1000;
     var ENEMY_SPEED = -100;
 
     var enemy = ennemiesMain.getFirstExists(false);
@@ -1340,8 +1345,45 @@ function enemyHitsPlayer (player, bullet) {
 };
 
 function smoothStopScroll(){
-    levelSpeedOne = levelSpeedTwo + 4;
-    levelSpeedTwo = levelSpeedTwo + 10;
+    if (score >= 20000) {
+        if (game.time.now >= nextIncrement) {
+            if (nextIncrement == 0) {
+                nextIncrement = game.time.now;
+            }
+            levelSpeedOne = levelSpeedTwo + 4;
+            levelSpeedTwo = levelSpeedTwo + 10;
+            nextIncrement+=1000;
+            levelSpeedOne = Math.min(levelSpeedOne,0);
+            levelSpeedTwo = Math.min(levelSpeedTwo,0);
+            // console.log(levelSpeedTwo);
+        }
+    }
+};
+
+function levelCleared(player) {
+    greenEnemies.removeAll(true);
+    ennemiesMain.removeAll(true);
+    enemyBullets.removeAll(true);
+    // if (! player.alive && endLevelOne.visible === false) {
+    //     endLevelOne.visible = true;
+    //     endLevelOne.alpha = 0;
+    //     var fadeInEndLevel = this.game.add.tween(endLevelOne);
+    //     fadeInEndLevel.to({alpha: 1}, 1000, Phaser.Easing.Quintic.Out);
+    //     fadeInEndLevel.onComplete.add(setResetHandlersLevel);
+    //     fadeInEndLevel.start();
+    //     function setResetHandlersLevel() {
+    //         //  The "click to restart" handler
+    //         tapRestart = this.game.input.onTap.addOnce(_restart,this);
+    //         spaceRestart = fireButton.onDown.addOnce(_restart,this);
+    //         function _restart() {
+    //           tapRestart.detach();
+    //           spaceRestart.detach();
+    //           // restart();
+    //           this.game.state.restart();
+    //         }
+    //     }
+    // }
+    
 };
 
 // function restart (player) {
