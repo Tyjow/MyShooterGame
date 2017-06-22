@@ -79,6 +79,8 @@
     var levelSpeedTwo = -100;
     var nextIncrement = 0;
     var nextFire = 0;
+    var removeTextLevelUp;
+    var playerLevelUpAnim;
 
     // addEnemy = function(game,x,y) {
 
@@ -644,6 +646,7 @@
             // this.load.image('enemy', 'img/sat1.png');
             this.load.spritesheet('player', 'img/player-ship.png', 200, 170);
             this.load.spritesheet('enemy', 'img/enemies-sat1.png', 94, 101);
+            this.load.spritesheet('playerLevelUpAnim', 'img/levelup-anim.png', 128, 128);
             this.load.image('playerBullets', 'img/bullet01.png');
             this.load.image('enemyBullets', 'img/bullet01.png');
             this.load.spritesheet('explosion', 'img/explode.png', 128, 128);
@@ -734,6 +737,13 @@
             shipTrail.setScale(0.01, 0.1, 0.01, 0.1, 1000, Phaser.Easing.Quintic.Out);
             shipTrail.start(false, 5000, 10);
 
+            playerLevelUpAnim = this.game.add.emitter(this.player.x, this.player.y, 0);
+            playerLevelUpAnim.width = 20;
+            playerLevelUpAnim.makeParticles('playerLevelUpAnim', Phaser.ArrayUtils.numberArray(1, 56));
+
+            playerLevelUpAnim.setScale(0.5, 0.5, 500, Phaser.Easing.Quintic.Out);
+            
+
             //  The baddies!
             greenEnemies = game.add.group();
             greenEnemies.enableBody = true;
@@ -795,6 +805,17 @@
             explosions.forEach( function(explosion) {
                 explosion.animations.add('explosion');
             });
+
+            //  Animation level up player
+            /*playerLevelUpAnim = game.add.group();
+            playerLevelUpAnim.enableBody = true;
+            playerLevelUpAnim.physicsBodyType = Phaser.Physics.ARCADE;
+            playerLevelUpAnim.createMultiple(30, 'playerLevelUpAnim');
+            playerLevelUpAnim.setAll('anchor.x', 0.5);
+            playerLevelUpAnim.setAll('anchor.y', 0.5);
+            playerLevelUpAnim.forEach( function(playerLevelUpAnim) {
+                playerLevelUpAnim.animations.add('playerLevelUpAnim');
+            });*/
 
             //  Shields stat
             shields = this.game.add.bitmapText(10, 10, 'spacefont', 'Shield: ' + this.player.health +'%', 40);
@@ -947,13 +968,18 @@
             //     this.weaponsEnemy[0].fire(greenEnemies);
             // }
 
-            gainXpPlayer = 50 * greenEnemiesXp;
+            gainXpPlayer = 2 * greenEnemiesXp;
 
             getXpPlayer = this.player.level * gainXpPlayer;
 
             if (this.player.exp == getXpPlayer) {
                 this.player.level++;
                 level.text = 'Level: ' + this.player.level;
+                // text xp above ennemies 
+                removeTextLevelUp = this.game.add.bitmapText(this.player.x, this.player.y, 'spacefont', 'Level Up', 15);
+                this.game.add.tween(removeTextLevelUp).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+                this.game.add.tween(removeTextLevelUp).to( { y: this.player.y - 10 }, 1500, Phaser.Easing.Linear.None, true);
+                playerLevelUpAnim.start(false, 800, 1);
             }
 
             if (score >= 5000) {
@@ -1090,6 +1116,14 @@ function enemiesFire () {
             }
         }
     }   
+};
+
+function AnimlevelUp (player) {
+    /*var animlevelUpEmit = playerLevelUpAnim.getFirstExists(false);
+    animlevelUpEmit.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
+    animlevelUpEmit.body.velocity.y = player.body.velocity.y;
+    animlevelUpEmit.alpha = 0.7;
+    animlevelUpEmit.play('playerLevelUpAnim', 30, false, true);*/
 };
 
 function addEnemyEmitterTrail(enemy) {
