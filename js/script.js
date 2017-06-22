@@ -78,12 +78,14 @@
     var gainXpPlayer;
     var getXpPlayer;
     var tweenPlayer;
+    var tweenEnnemies;
     var levelSpeedOne = -40;
     var levelSpeedTwo = -100;
     var nextIncrement = 0;
     var nextFire = 0;
     var removeTextLevelUp;
     var playerLevelUpAnim;
+    var enemyHealth;
 
     // addEnemy = function(game,x,y) {
 
@@ -758,6 +760,7 @@
             greenEnemies.setAll('outOfBoundsKill', true);
             greenEnemies.setAll('checkWorldBounds', true);
             greenEnemies.forEach(function(enemy){
+               enemy.health = 1;
                enemy.animations.add('enemyFly', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18], 15, true);
                enemy.animations.play('enemyFly');
                addEnemyEmitterTrail(enemy);
@@ -782,6 +785,8 @@
             ennemiesMain.setAll('outOfBoundsKill', true);
             ennemiesMain.setAll('checkWorldBounds', true);
             ennemiesMain.forEach(function(enemy){
+               enemy.health = 2;
+               enemy.alpha = 1;
                enemy.animations.add('enemyFlyMain', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24], 15, true);
                enemy.animations.play('enemyFlyMain');
                addEnemyEmitterTrail(enemy);
@@ -813,8 +818,8 @@
             enemyBullets.setAll('checkWorldBounds', true);
 
             //Temps de spawn enemies
-            this.game.time.events.add(2000, launchGreenEnemy);
-            this.game.time.events.add(5000, launchEnnemiesMain);
+            this.game.time.events.add(1000, launchGreenEnemy);
+            this.game.time.events.add(10000, launchEnnemiesMain);
 
             //  Game over text
             gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER!', 110);
@@ -984,11 +989,11 @@
             }
 
             // set exp to get for level up
-            gainXpPlayer = 500;
+            gainXpPlayer = 50 * greenEnemiesXp;
 
             getXpPlayer = this.player.level * gainXpPlayer;
 
-            if (this.player.exp == getXpPlayer) {
+            if (this.player.exp >= getXpPlayer) {
                 this.player.level++;
                 level.text = 'Level: ' + this.player.level;
                 
@@ -996,7 +1001,8 @@
                 AnimlevelUp(this.player);
             }
 
-            if (score >= 5000) {
+            // score condition end level 1
+            if (score >= 10000) {
                 if (game.time.now >= nextIncrement) {
                     if (nextIncrement == 0) {
                         nextIncrement = game.time.now;
@@ -1051,8 +1057,9 @@ function launchGreenEnemy() {
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 100;
+        enemy.health = 1;
 
-        enemy.trail.start(false, 800, 1);
+        // enemy.trail.start(false, 800, 1);
 
         enemy.update = function(){
             enemy.angle = -90 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y));
@@ -1085,6 +1092,8 @@ function launchEnnemiesMain() {
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 50;
+        enemy.health = 2;
+        enemy.alpha = 1;
 
         enemy.trail.start(false, 800, 1);
 
@@ -1238,61 +1247,78 @@ function shipCollideEnemiesMain(player, enemy) {
     
 };
 
-function hitEnemy(enemy, bullet) {
-    var explosion = explosions.getFirstExists(false);
-    explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
-    explosion.body.velocity.y = enemy.body.velocity.y;
-    explosion.alpha = 0.7;
-    explosion.play('explosion', 30, false, true);
-    enemy.kill();
+function hitEnemy(bullet, enemy) {
+    
+    enemy.health-=1;
     bullet.kill();
+       
+    if (enemy.health <= 0) {
+        var explosion = explosions.getFirstExists(false);
+        explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
+        explosion.body.velocity.y = enemy.body.velocity.y;
+        explosion.alpha = 0.7;
+        explosion.play('explosion', 30, false, true);
+       
+        enemy.kill();
+        // text xp above ennemies 
+        removeTextXp = this.game.add.text(enemy.x, enemy.y, 'exp: +' + greenEnemiesXp, { font: '12px Arial', fill: '#4dffa6' });  
+        removeTextXp.stroke = "#000";
+        removeTextXp.strokeThickness = 2;
+        this.game.add.tween(removeTextXp).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
 
-    // text xp above ennemies 
-    removeTextXp = this.game.add.text(enemy.x, enemy.y, 'exp: +' + greenEnemiesXp, { font: '12px Arial', fill: '#4dffa6' });  
-    removeTextXp.stroke = "#000";
-    removeTextXp.strokeThickness = 2;
-    this.game.add.tween(removeTextXp).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+        // add Exp
+        this.player.exp += greenEnemiesXp;
+        experience.text = 'Exp: ' + this.player.exp;
 
-    // add Exp
-    this.player.exp += greenEnemiesXp;
-    experience.text = 'Exp: ' + this.player.exp;
-
-    // Increase score
-    score += greenDamageAmount * 10;
-    scoreText.text = 'Score: ' + score;
+        // Increase score
+        score += greenDamageAmount * 10;
+        scoreText.text = 'Score: ' + score;
+    }
 };
 
-function hitEnemyMain(enemy, bullet) {
-    var explosion = explosions.getFirstExists(false);
-    explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
-    explosion.body.velocity.y = enemy.body.velocity.y;
-    explosion.alpha = 0.7;
-    explosion.play('explosion', 30, false, true);
-    enemy.kill();
+function hitEnemyMain(bullet, enemy) {
+
+    enemy.health-=1;
     bullet.kill();
+    tweenEnnemies = this.game.add.tween(enemy).to( { alpha: 0.5, tint: 0xf1f1f1 }, 20, "Linear", true, 0, 6);
+    tweenEnnemies.yoyo(true, 0);
+    tweenEnnemies.onComplete.add(function() {  
+        tweenEnnemies.stop();
+    });
 
-    // text xp above ennemies 
-    removeTextXp = this.game.add.text(enemy.x, enemy.y, 'exp: +' + ennemiesMainXp, { font: '12px Arial', fill: '#4dffa6' });  
-    removeTextXp.stroke = "#000";
-    removeTextXp.strokeThickness = 2;
-    this.game.add.tween(removeTextXp).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+    if (enemy.health <= 0) {
+        var explosion = explosions.getFirstExists(false);
+        explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
+        explosion.body.velocity.y = enemy.body.velocity.y;
+        explosion.alpha = 0.7;
+        explosion.play('explosion', 30, false, true);
 
-    // add Exp
-    this.player.exp += ennemiesMainXp;
-    experience.text = 'Exp: ' + this.player.exp;
+        enemy.kill();
 
-    // Increase score
-    score += enemyMainDamageAmount * 10;
-    scoreText.text = 'Score: ' + score;
+        // text xp above ennemies 
+        removeTextXp = this.game.add.text(enemy.x, enemy.y, 'exp: +' + ennemiesMainXp, { font: '12px Arial', fill: '#4dffa6' });  
+        removeTextXp.stroke = "#000";
+        removeTextXp.strokeThickness = 2;
+        this.game.add.tween(removeTextXp).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+
+        // add Exp
+        this.player.exp += ennemiesMainXp;
+        experience.text = 'Exp: ' + this.player.exp;
+
+        // Increase score
+        score += enemyMainDamageAmount * 10;
+        scoreText.text = 'Score: ' + score;
+    }
 };
 
-function hitEnemyBullet(enemy, bullet) {
+function hitEnemyBullet(bullet, bullet2) {
     var explosion = explosions.getFirstExists(false);
     explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
-    explosion.body.velocity.y = enemy.body.velocity.y;
+    explosion.body.velocity.y = bullet.body.velocity.y;
     explosion.alpha = 0.7;
     explosion.play('explosion', 30, false, true);
     bullet.kill();
+    bullet2.kill();
 };
 
 function enemyHitsPlayer (player, bullet) {
