@@ -656,7 +656,8 @@
             this.load.spritesheet('playerLevelUpAnim', 'img/levelup-anim.png', 128, 128);
             this.load.image('playerBullets', 'img/bullet01.png');
             this.load.image('enemyBullets', 'img/bullet01.png');
-            this.load.spritesheet('explosion', 'img/explode.png', 128, 128);
+            this.load.spritesheet('explosionTrail', 'img/explode.png', 128, 128);
+            this.load.spritesheet('explosion', 'img/explode-anim.png', 300, 292);
             this.load.bitmapFont('shmupfont', 'img/shmupfont.png', 'img/shmupfont.xml');
             this.load.bitmapFont('spacefont', 'img/tyjowfont.png', 'img/tyjowfont.xml');
 
@@ -737,7 +738,7 @@
 
             shipTrail = this.game.add.emitter(this.player.x, this.player.y + 10, 400);
             shipTrail.width = 10;
-            shipTrail.makeParticles('explosion', [1,2,3,4,5]);
+            shipTrail.makeParticles('explosionTrail', [1,2,3,4,5]);
             shipTrail.setXSpeed(20, -20);
             shipTrail.setRotation(50,-50);
             shipTrail.setAlpha(0.4, 0, 800);
@@ -746,7 +747,6 @@
 
             // playerLevelUpAnim = this.game.add.emitter(this.player.x, this.player.y, 0);
             // playerLevelUpAnim.makeParticles('playerLevelUpAnim', Phaser.ArrayUtils.numberArray(1, 56));
-
             
             //  The baddies!
             greenEnemies = game.add.group();
@@ -786,7 +786,7 @@
             ennemiesMain.setAll('outOfBoundsKill', true);
             ennemiesMain.setAll('checkWorldBounds', true);
             ennemiesMain.forEach(function(enemy){
-               enemy.health = 2;
+               enemy.health = 3;
                enemy.alpha = 1;
                enemy.animations.add('enemyFlyMain', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24], 15, true);
                enemy.animations.play('enemyFlyMain');
@@ -803,7 +803,7 @@
             playerBullets = game.add.group();
             playerBullets.enableBody = true;
             playerBullets.physicsBodyType = Phaser.Physics.ARCADE;
-            playerBullets.createMultiple(15, 'playerBullets');      
+            playerBullets.createMultiple(50, 'playerBullets');      
             playerBullets.setAll('anchor.x', 0.5);
             playerBullets.setAll('anchor.y', 0.5);
             playerBullets.setAll('outOfBoundsKill', true);
@@ -820,7 +820,7 @@
 
             //Temps de spawn enemies
             this.game.time.events.add(1000, launchGreenEnemy);
-            this.game.time.events.add(10000, launchEnnemiesMain);
+            this.game.time.events.add(15000, launchEnnemiesMain);
 
             //  Game over text
             gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER!', 110);
@@ -839,6 +839,8 @@
             explosions.createMultiple(30, 'explosion');
             explosions.setAll('anchor.x', 0.5);
             explosions.setAll('anchor.y', 0.5);
+            explosions.setAll('scale.x', 0.4);
+            explosions.setAll('scale.y', 0.4);
             explosions.forEach( function(explosion) {
                 explosion.animations.add('explosion');
             });
@@ -1055,7 +1057,7 @@ function fireBullet(player) {
 function launchGreenEnemy() {
     var MIN_ENEMY_SPACING = 300;
     var MAX_ENEMY_SPACING = 1000;
-    var ENEMY_SPEED = -200;
+    var ENEMY_SPEED = -150;
 
     var enemy = greenEnemies.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
@@ -1100,7 +1102,7 @@ function launchEnnemiesMain() {
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 50;
         enemy.scale.set(0.25);
-        enemy.health = 2;
+        enemy.health = 3;
         enemy.alpha = 1;
 
         enemy.trail.start(false, 800, 1);
@@ -1205,7 +1207,7 @@ function AnimlevelUp (player) {
 function addEnemyEmitterTrail(enemy) {
     var enemyTrail = game.add.emitter(enemy.x, 10, 100);
     enemyTrail.width = 10;
-    enemyTrail.makeParticles('explosion', [1,2,3,4,5]);
+    enemyTrail.makeParticles('explosionTrail', [1,2,3,4,5]);
     enemyTrail.setXSpeed(20, -20);
     enemyTrail.setRotation(50,-50);
     enemyTrail.setAlpha(0.4, 0, 800);
