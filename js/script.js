@@ -737,13 +737,10 @@
             shipTrail.setScale(0.01, 0.1, 0.01, 0.1, 1000, Phaser.Easing.Quintic.Out);
             shipTrail.start(false, 5000, 10);
 
-            playerLevelUpAnim = this.game.add.emitter(this.player.x, this.player.y, 0);
-            playerLevelUpAnim.width = 20;
-            playerLevelUpAnim.makeParticles('playerLevelUpAnim', Phaser.ArrayUtils.numberArray(1, 56));
+            // playerLevelUpAnim = this.game.add.emitter(this.player.x, this.player.y, 0);
+            // playerLevelUpAnim.makeParticles('playerLevelUpAnim', Phaser.ArrayUtils.numberArray(1, 56));
 
-            playerLevelUpAnim.setScale(0.5, 0.5, 500, Phaser.Easing.Quintic.Out);
             
-
             //  The baddies!
             greenEnemies = game.add.group();
             greenEnemies.enableBody = true;
@@ -807,7 +804,7 @@
             });
 
             //  Animation level up player
-            /*playerLevelUpAnim = game.add.group();
+            playerLevelUpAnim = game.add.group();
             playerLevelUpAnim.enableBody = true;
             playerLevelUpAnim.physicsBodyType = Phaser.Physics.ARCADE;
             playerLevelUpAnim.createMultiple(30, 'playerLevelUpAnim');
@@ -815,7 +812,7 @@
             playerLevelUpAnim.setAll('anchor.y', 0.5);
             playerLevelUpAnim.forEach( function(playerLevelUpAnim) {
                 playerLevelUpAnim.animations.add('playerLevelUpAnim');
-            });*/
+            });
 
             //  Shields stat
             shields = this.game.add.bitmapText(10, 10, 'spacefont', 'Shield: ' + this.player.health +'%', 40);
@@ -833,14 +830,6 @@
             this.foreground = this.add.tileSprite(0, this.game.world.height, this.game.width, this.game.height, 'foreground');
             this.foreground.anchor.set(0,0.7);
             this.foreground.autoScroll(levelSpeedTwo, 0);
-
-            // this.foreground = this.add.sprite(1920, 700, 'foreground');
-            // this.foreground.animations.add('swim', Phaser.Animation.generateFrameNames('foreground', 0), 30, true);
-            // this.foreground.animations.play('swim');
-
-            
-
-            // this.weaponName = this.add.bitmapText(10, 864, 'shmupfont', "Press ENTER = Next Weapon", 24);
 
             //  Cursor keys to fly + space to fire
             this.cursors = this.input.keyboard.createCursorKeys();
@@ -963,23 +952,17 @@
                 fireBullet(this.player);
             }
 
-            // if (this.player.alive)
-            // {
-            //     this.weaponsEnemy[0].fire(greenEnemies);
-            // }
-
-            gainXpPlayer = 2 * greenEnemiesXp;
+            // set exp to get for level up
+            gainXpPlayer = 50 * greenEnemiesXp;
 
             getXpPlayer = this.player.level * gainXpPlayer;
 
             if (this.player.exp == getXpPlayer) {
                 this.player.level++;
                 level.text = 'Level: ' + this.player.level;
-                // text xp above ennemies 
-                removeTextLevelUp = this.game.add.bitmapText(this.player.x, this.player.y, 'spacefont', 'Level Up', 15);
-                this.game.add.tween(removeTextLevelUp).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
-                this.game.add.tween(removeTextLevelUp).to( { y: this.player.y - 10 }, 1500, Phaser.Easing.Linear.None, true);
-                playerLevelUpAnim.start(false, 800, 1);
+                
+                // Anim level up
+                AnimlevelUp(this.player);
             }
 
             if (score >= 5000) {
@@ -1000,35 +983,31 @@
 
             enemiesFire();
 
-            // for (var i = 0; i < greenEnemies.children.length; i++){
-            //     wepEnemy.fire(greenEnemies.children[i]);
-            // }
-
         }
 
     };
 
-    function fireBullet(player) {
-        //  Grab the first bullet we can from the pool
-        var bullet = playerBullets.getFirstExists(false);
-        var bulletSpeed = 600;
-        var fireRate = 100;
+function fireBullet(player) {
+    //  Grab the first bullet we can from the pool
+    var bullet = playerBullets.getFirstExists(false);
+    var bulletSpeed = 600;
+    var fireRate = 100;
 
-        if (game.time.now >= nextFire) {
-            if (bullet)
-                {
-                    //  And fire it
-                    bullet.reset(player.x + 70, player.y + 40);
-                    bullet.body.velocity.x = bulletSpeed;
-                    bullet.scale.set(0.3);
-                    // game.physics.arcade.velocityFromAngle(0, bulletSpeed, bullet.body.velocity);
+    if (game.time.now >= nextFire) {
+        if (bullet)
+            {
+                //  And fire it
+                bullet.reset(player.x + 70, player.y + 40);
+                bullet.body.velocity.x = bulletSpeed;
+                bullet.scale.set(0.3);
+                // game.physics.arcade.velocityFromAngle(0, bulletSpeed, bullet.body.velocity);
 
-                }
-            nextFire = game.time.now + fireRate;
-        }
+            }
+        nextFire = game.time.now + fireRate;
     }
+};
 
-    function launchGreenEnemy() {
+function launchGreenEnemy() {
     var MIN_ENEMY_SPACING = 300;
     var MAX_ENEMY_SPACING = 3000;
     var ENEMY_SPEED = -200;
@@ -1043,33 +1022,6 @@
 
         enemy.trail.start(false, 800, 1);
 
-        // var bulletX = enemy.x - 10;
-        // var bulletY = enemy.y + 10;
-        // var nextFire = 0;
-        // var bulletSpeed = -600;
-        // var fireRate = 1000;
-
-        // var tracking = false;
-        // var scaleSpeed = 0;
-
-    
-        // var gx = gx || 0;
-        // var gy = gy || 0;
-
-        // bullet.reset(bulletX, bulletY);
-
-        // if (enemy.x == this.game.width) {
-            
-        //     if (game.time.time >= nextFire) {
-        //         bullet.scale.set(-1);
-        //         bullet.body.velocity.x = bulletSpeed;
-        //         bullet.body.gravity.set(gx, gy);
-        //         nextFire = game.time.time + fireRate;
-
-        //     }
-        // }
-
-
         enemy.update = function(){
             enemy.angle = -90 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y));
 
@@ -1078,17 +1030,14 @@
             enemy.trail.y = enemy.y + 10;
 
             
-          //  Kill enemies once they go off screen
-              if (enemy.x > this.game.width) {
-               enemy.kill();
-             }
-       }
-
-
-
+            // Kill enemies once they go off screen
+            if (enemy.x > this.game.width) {
+                enemy.kill();
+            }
+        }
     }
 
-   //  Send another enemy soon
+    // Send another enemy soon
     greenEnemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchGreenEnemy);
 };
 
@@ -1119,11 +1068,27 @@ function enemiesFire () {
 };
 
 function AnimlevelUp (player) {
-    /*var animlevelUpEmit = playerLevelUpAnim.getFirstExists(false);
+    var animlevelUpEmit = playerLevelUpAnim.getFirstExists(false);
     animlevelUpEmit.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
     animlevelUpEmit.body.velocity.y = player.body.velocity.y;
     animlevelUpEmit.alpha = 0.7;
-    animlevelUpEmit.play('playerLevelUpAnim', 30, false, true);*/
+    animlevelUpEmit.play('playerLevelUpAnim', 30, false, true);
+    trailAnim = animlevelUpEmit;
+
+    // text xp above ennemies 
+    removeTextLevelUp = game.add.bitmapText(player.x, player.y, 'spacefont', 'Level Up', 15);
+    game.add.tween(removeTextLevelUp).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+    // game.add.tween(removeTextLevelUp).to( { y: player.y - 10 }, 1500, Phaser.Easing.Linear.None, true);
+    trailAnimText = removeTextLevelUp;
+
+    animlevelUpEmit.update = function(){
+
+        trailAnim.x = player.x + 40;
+        trailAnim.y = player.y;
+
+        trailAnimText.x = player.x;
+        trailAnimText.y = player.y;
+   }
 };
 
 function addEnemyEmitterTrail(enemy) {
