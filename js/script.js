@@ -793,7 +793,7 @@
                addEnemyEmitterTrail(enemy);
                enemy.nextFireChild = 0;
                enemyMainDamageAmount = damageAmountEnemies * 2;
-               enemy.events.onKilled.add(function(){
+               enemy.events.onRemovedFromGroup.add(function(){
                       
                     enemy.trail.kill();
                     
@@ -1021,7 +1021,8 @@
             smoothStopScroll();
 
             if (levelSpeedOne == 0 && levelSpeedTwo == 0) {
-                levelCleared();
+                levelCleared(this.player);
+                
             }
 
             this.midground.autoScroll(levelSpeedOne, 0);
@@ -1369,25 +1370,26 @@ function levelCleared(player) {
     greenEnemies.removeAll(true);
     ennemiesMain.removeAll(true);
     enemyBullets.removeAll(true);
-    // if (! player.alive && endLevelOne.visible === false) {
-    //     endLevelOne.visible = true;
-    //     endLevelOne.alpha = 0;
-    //     var fadeInEndLevel = this.game.add.tween(endLevelOne);
-    //     fadeInEndLevel.to({alpha: 1}, 1000, Phaser.Easing.Quintic.Out);
-    //     fadeInEndLevel.onComplete.add(setResetHandlersLevel);
-    //     fadeInEndLevel.start();
-    //     function setResetHandlersLevel() {
-    //         //  The "click to restart" handler
-    //         tapRestart = this.game.input.onTap.addOnce(_restart,this);
-    //         spaceRestart = fireButton.onDown.addOnce(_restart,this);
-    //         function _restart() {
-    //           tapRestart.detach();
-    //           spaceRestart.detach();
-    //           // restart();
-    //           this.game.state.restart();
-    //         }
-    //     }
-    // }
+
+    if ( endLevelOne.visible == false) {
+        endLevelOne.visible = true;
+        endLevelOne.alpha = 0;
+        var fadeInEndLevel = game.add.tween(endLevelOne);
+        fadeInEndLevel.to({alpha: 1}, 1000, Phaser.Easing.Quintic.Out);
+        fadeInEndLevel.onComplete.add(setResetHandlersLevel);
+        fadeInEndLevel.start();
+        function setResetHandlersLevel() {
+            //  The "click to restart" handler
+            tapRestart = game.input.onTap.addOnce(_restart,this);
+            spaceRestart = fireButton.onDown.addOnce(_restart,this);
+            function _restart() {
+              tapRestart.detach();
+              spaceRestart.detach();
+              // restart();
+              game.state.restart();
+            }
+        }
+    }
     
 };
 
