@@ -780,8 +780,8 @@
             ennemiesMain.createMultiple(2, 'enemyMain');
             // greenEnemies.setAll('anchor.x', 0.5);
             // greenEnemies.setAll('anchor.y', 0.5);
-            ennemiesMain.setAll('scale.x', -0.25);
-            ennemiesMain.setAll('scale.y', 0.25);
+/*            ennemiesMain.setAll('scale.x', 0.25);
+            ennemiesMain.setAll('scale.y', 0.25);*/
             // greenEnemies.setAll('angle', 180);
             ennemiesMain.setAll('outOfBoundsKill', true);
             ennemiesMain.setAll('checkWorldBounds', true);
@@ -1005,6 +1005,8 @@
                 
                 // Anim level up
                 AnimlevelUp(this.player);
+                this.player.health = 100;
+                shields.text = 'Shield: ' + Math.max(this.player.health, 0) +'%';
             }
 
             if (this.player.level >= 3) {
@@ -1097,6 +1099,7 @@ function launchEnnemiesMain() {
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 50;
+        enemy.scale.set(0.25);
         enemy.health = 2;
         enemy.alpha = 1;
 
@@ -1106,7 +1109,7 @@ function launchEnnemiesMain() {
             enemy.angle = -90 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y));
 
             // fumee emit par les enemies
-            enemy.trail.x = enemy.x;
+            enemy.trail.x = enemy.x + 70;
             enemy.trail.y = enemy.y + 25;
 
             
