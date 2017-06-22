@@ -58,6 +58,7 @@
 
     var greenEnemies;
     var greenEnemiesXp = 10;
+    var ennemiesMainXp = 20;
     var explosions;
     var shields;
     var shipTrail;
@@ -67,9 +68,11 @@
     var score = 0;
     var scoreText;
     var wepEnemy;
+    var greenDamageAmount;
     var damageAmountEnemies = 10;
     var enemyBullets;
     var livingEnemies = [];
+    var livingEnemiesMain = [];
     var nextFireEnemy = 0;
     var removeTextXp;
     var gainXpPlayer;
@@ -646,6 +649,7 @@
             // this.load.image('enemy', 'img/sat1.png');
             this.load.spritesheet('player', 'img/player-ship.png', 200, 170);
             this.load.spritesheet('enemy', 'img/enemies-sat1.png', 94, 101);
+            this.load.spritesheet('enemyMain', 'img/enemies-main1.png', 276, 215);
             this.load.spritesheet('playerLevelUpAnim', 'img/levelup-anim.png', 128, 128);
             this.load.image('playerBullets', 'img/bullet01.png');
             this.load.image('enemyBullets', 'img/bullet01.png');
@@ -758,7 +762,31 @@
                enemy.animations.play('enemyFly');
                addEnemyEmitterTrail(enemy);
                enemy.nextFireChild = 0;
-               enemy.damageAmount = damageAmountEnemies;
+               greenDamageAmount = damageAmountEnemies;
+               enemy.events.onKilled.add(function(){
+                      
+                    enemy.trail.kill();
+                    
+                });
+            });
+
+            ennemiesMain = game.add.group();
+            ennemiesMain.enableBody = true;
+            ennemiesMain.physicsBodyType = Phaser.Physics.ARCADE;
+            ennemiesMain.createMultiple(2, 'enemyMain');
+            // greenEnemies.setAll('anchor.x', 0.5);
+            // greenEnemies.setAll('anchor.y', 0.5);
+            ennemiesMain.setAll('scale.x', -0.25);
+            ennemiesMain.setAll('scale.y', 0.25);
+            // greenEnemies.setAll('angle', 180);
+            ennemiesMain.setAll('outOfBoundsKill', true);
+            ennemiesMain.setAll('checkWorldBounds', true);
+            ennemiesMain.forEach(function(enemy){
+               enemy.animations.add('enemyFlyMain', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24], 15, true);
+               enemy.animations.play('enemyFlyMain');
+               addEnemyEmitterTrail(enemy);
+               enemy.nextFireChild = 0;
+               enemyMainDamageAmount = damageAmountEnemies * 2;
                enemy.events.onKilled.add(function(){
                       
                     enemy.trail.kill();
@@ -785,7 +813,8 @@
             enemyBullets.setAll('checkWorldBounds', true);
 
             //Temps de spawn enemies
-            this.game.time.events.add(500, launchGreenEnemy);
+            this.game.time.events.add(2000, launchGreenEnemy);
+            this.game.time.events.add(5000, launchEnnemiesMain);
 
             //  Game over text
             gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER!', 110);
@@ -878,6 +907,8 @@
             //  Check collisions
             this.game.physics.arcade.overlap(this.player, greenEnemies, shipCollide, null, this);
             this.game.physics.arcade.overlap(playerBullets, greenEnemies, hitEnemy, null, this);
+            this.game.physics.arcade.overlap(this.player, ennemiesMain, shipCollideEnemiesMain, null, this);
+            this.game.physics.arcade.overlap(playerBullets, ennemiesMain, hitEnemyMain, null, this);
             this.game.physics.arcade.overlap(enemyBullets, this.player, enemyHitsPlayer, null, this);
             this.game.physics.arcade.overlap(playerBullets, enemyBullets, hitEnemyBullet, null, this);
 
@@ -953,7 +984,7 @@
             }
 
             // set exp to get for level up
-            gainXpPlayer = 50 * greenEnemiesXp;
+            gainXpPlayer = 500;
 
             getXpPlayer = this.player.level * gainXpPlayer;
 
@@ -981,7 +1012,8 @@
             this.midground.autoScroll(levelSpeedOne, 0);
             this.foreground.autoScroll(levelSpeedTwo, 0);
 
-            enemiesFire();
+            // enemiesFire();
+            enemiesFireMain();
 
         }
 
@@ -1026,8 +1058,8 @@ function launchGreenEnemy() {
             enemy.angle = -90 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y));
 
             // fumee emit par les enemies
-            enemy.trail.x = enemy.x;
-            enemy.trail.y = enemy.y + 10;
+            // enemy.trail.x = enemy.x;
+            // enemy.trail.y = enemy.y + 10;
 
             
             // Kill enemies once they go off screen
@@ -1040,6 +1072,41 @@ function launchGreenEnemy() {
     // Send another enemy soon
     greenEnemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchGreenEnemy);
 };
+
+function launchEnnemiesMain() {
+    var MIN_ENEMY_SPACING = 300;
+    var MAX_ENEMY_SPACING = 3000;
+    var ENEMY_SPEED = -100;
+
+    var enemy = ennemiesMain.getFirstExists(false);
+    // var bullet = enemyBullets.getFirstExists(false);
+    if (enemy) {
+        enemy.reset(this.game.width, game.rnd.integerInRange(0, window.innerHeight - 20));
+        enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
+        enemy.body.velocity.x = ENEMY_SPEED;
+        enemy.body.drag.y = 50;
+
+        enemy.trail.start(false, 800, 1);
+
+        enemy.update = function(){
+            enemy.angle = -90 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y));
+
+            // fumee emit par les enemies
+            enemy.trail.x = enemy.x;
+            enemy.trail.y = enemy.y + 25;
+
+            
+            // Kill enemies once they go off screen
+            if (enemy.x > this.game.width) {
+                enemy.kill();
+            }
+        }
+    }
+
+    // Send another enemy soon
+    ennemiesMainLaunchTimer = game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchEnnemiesMain);
+};
+
 
 function enemiesFire () {
     var bulletSpeed = -500;
@@ -1057,6 +1124,33 @@ function enemiesFire () {
             if (game.time.now >= shooter.nextFireChild) {
 
                 bullet.reset(shooter.body.x - 10, shooter.body.y + 15);
+                bullet.scale.set(-0.3);
+                bullet.body.velocity.x = bulletSpeed;
+                shooter.nextFireChild = game.time.now + fireRate;
+            }
+
+            }
+        }
+    }   
+};
+
+function enemiesFireMain () {
+    // bullet speed ennemies
+    var bulletSpeed = -400;
+    var fireRate = 1500;
+    livingEnemiesMain.length = 0;
+    ennemiesMain.forEachAlive(function(enemy){
+        livingEnemiesMain.push(enemy)
+    });
+
+    if(game.time.now >= nextFireEnemy) { 
+        var bullet = enemyBullets.getFirstExists(false);
+        if(bullet && livingEnemiesMain.length > 0) {
+            for (var i = 0; i < livingEnemiesMain.length; i++){
+            var shooter = livingEnemiesMain[i];
+            if (game.time.now >= shooter.nextFireChild) {
+
+                bullet.reset(shooter.body.x - 10, shooter.body.y + 25);
                 bullet.scale.set(-0.3);
                 bullet.body.velocity.x = bulletSpeed;
                 shooter.nextFireChild = game.time.now + fireRate;
@@ -1117,7 +1211,28 @@ function shipCollide(player, enemy) {
         tweenPlayer.stop();
     });
 
-    player.damage(enemy.damageAmount);
+    player.damage(greenDamageAmount);
+    shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
+
+    
+};
+
+function shipCollideEnemiesMain(player, enemy) {
+    var explosion = explosions.getFirstExists(false);
+    explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
+    explosion.body.velocity.y = enemy.body.velocity.y;
+    explosion.alpha = 0.7;
+    explosion.play('explosion', 30, false, true);
+    enemy.kill();
+
+    // flash effect on hit
+    tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5, tint: 0xf1f1f1 }, 50, "Linear", true, 0, 6);
+    tweenPlayer.yoyo(true, 0);
+    tweenPlayer.onComplete.add(function() {  
+        tweenPlayer.stop();
+    });
+
+    player.damage(enemyMainDamageAmount);
     shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
 
     
@@ -1143,7 +1258,31 @@ function hitEnemy(enemy, bullet) {
     experience.text = 'Exp: ' + this.player.exp;
 
     // Increase score
-    score += damageAmountEnemies * 10;
+    score += greenDamageAmount * 10;
+    scoreText.text = 'Score: ' + score;
+};
+
+function hitEnemyMain(enemy, bullet) {
+    var explosion = explosions.getFirstExists(false);
+    explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
+    explosion.body.velocity.y = enemy.body.velocity.y;
+    explosion.alpha = 0.7;
+    explosion.play('explosion', 30, false, true);
+    enemy.kill();
+    bullet.kill();
+
+    // text xp above ennemies 
+    removeTextXp = this.game.add.text(enemy.x, enemy.y, 'exp: +' + ennemiesMainXp, { font: '12px Arial', fill: '#4dffa6' });  
+    removeTextXp.stroke = "#000";
+    removeTextXp.strokeThickness = 2;
+    this.game.add.tween(removeTextXp).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+
+    // add Exp
+    this.player.exp += ennemiesMainXp;
+    experience.text = 'Exp: ' + this.player.exp;
+
+    // Increase score
+    score += enemyMainDamageAmount * 10;
     scoreText.text = 'Score: ' + score;
 };
 
@@ -1170,7 +1309,7 @@ function enemyHitsPlayer (player, bullet) {
         tweenPlayer.stop();
     });
 
-    player.damage(damageAmountEnemies);
+    player.damage(enemyMainDamageAmount);
     shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
 };
 
