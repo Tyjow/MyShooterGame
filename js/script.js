@@ -1246,6 +1246,8 @@ function shipCollide(player, enemy) {
     tweenPlayer.yoyo(true, 0);
     tweenPlayer.onComplete.add(function() {  
         tweenPlayer.stop();
+        player.alpha = 1;
+        player.tint = 0xffffff;
     });
 
     player.damage(greenDamageAmount);
@@ -1267,6 +1269,8 @@ function shipCollideEnemiesMain(player, enemy) {
     tweenPlayer.yoyo(true, 0);
     tweenPlayer.onComplete.add(function() {  
         tweenPlayer.stop();
+        player.alpha = 1;
+        player.tint = 0xffffff;
     });
 
     player.damage(enemyMainDamageAmount);
@@ -1310,8 +1314,10 @@ function hitEnemyMain(bullet, enemy) {
     bullet.kill();
     tweenEnnemies = this.game.add.tween(enemy).to( { alpha: 0.5, tint: 0xf1f1f1 }, 20, "Linear", true, 0, 6);
     tweenEnnemies.yoyo(true, 0);
-    tweenEnnemies.onComplete.add(function() {  
+    tweenEnnemies.onComplete.add(function() {
         tweenEnnemies.stop();
+        enemy.alpha = 1;
+        enemy.tint = 0xffffff;
     });
 
     if (enemy.health <= 0) {
