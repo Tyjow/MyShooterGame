@@ -936,6 +936,8 @@
                 fadeInGameOver.to({alpha: 1}, 1000, Phaser.Easing.Quintic.Out);
                 fadeInGameOver.onComplete.add(setResetHandlers);
                 fadeInGameOver.start();
+                greenEnemyLaunchTimer = game.time.events.stop();
+                ennemiesMainLaunchTimer = game.time.events.stop();
                 function setResetHandlers() {
                     //  The "click to restart" handler
                     tapRestart = this.game.input.onTap.addOnce(_restart,this);
@@ -946,6 +948,8 @@
                       // restart();
                       this.game.state.restart();
                       score = 0;
+                      greenEnemyLaunchTimer = game.time.events.start();
+                      ennemiesMainLaunchTimer = game.time.events.start();
                     }
                 }
             }
@@ -1024,11 +1028,18 @@
             // score condition end level 1
             smoothStopScroll();
 
-            if (levelSpeedOne == 0 && levelSpeedTwo == 0) {
-                levelCleared(this.player);
-                
+            // stop launch ennemies before level cleared
+            if (levelSpeedOne >= -39 && levelSpeedTwo >= -99) {
+                greenEnemyLaunchTimer = game.time.events.stop();
+                ennemiesMainLaunchTimer = game.time.events.stop();
             }
 
+            // remove all element on screen and add msg Level Complete
+            if (levelSpeedOne >= 0 && levelSpeedTwo >= 0) {
+                levelCleared();
+            }
+
+            // update new value for autoscroll "function smoothStopScroll()"
             this.midground.autoScroll(levelSpeedOne, 0);
             this.foreground.autoScroll(levelSpeedTwo, 0);
 
@@ -1372,7 +1383,7 @@ function smoothStopScroll(){
     }
 };
 
-function levelCleared(player) {
+function levelCleared() {
     greenEnemies.removeAll(true);
     ennemiesMain.removeAll(true);
     enemyBullets.removeAll(true);
@@ -1393,6 +1404,11 @@ function levelCleared(player) {
               spaceRestart.detach();
               // restart();
               game.state.restart();
+              score = 0;
+              levelSpeedOne = -40;
+              levelSpeedTwo = -100;
+              greenEnemyLaunchTimer = game.time.events.start();
+              ennemiesMainLaunchTimer = game.time.events.start();
             }
         }
     }
