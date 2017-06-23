@@ -88,6 +88,7 @@
     var playerLevelUpAnim;
     var enemyHealth;
     var playerShootChainGun;
+    var playerShootChainGunUpgrade;
     var explosionSound;
     var mainSound;
     var levelUpSound;
@@ -665,7 +666,8 @@
             this.load.bitmapFont('shmupfont', 'img/shmupfont.png', 'img/shmupfont.xml');
             this.load.bitmapFont('spacefont', 'img/tyjowfont.png', 'img/tyjowfont.xml');
 
-            this.load.audio('playerShootChainGun', 'media/shoot5.mp3', true);
+            this.load.audio('playerShootChainGun', 'media/basicshoot.mp3', true);
+            this.load.audio('playerShootChainGunUpgrade', 'media/basicshoot-upgrade.mp3', true);
             this.load.audio('explosionSound', 'media/explosion2-sound.mp3', true);
             this.load.audio('mainSound', 'media/main-sound.ogg', true);
             this.load.audio('levelUpSound', 'media/levelup-sound.wav', true);
@@ -691,6 +693,9 @@
 
             playerShootChainGun = this.game.add.audio('playerShootChainGun');
             playerShootChainGun.volume = 0.3;
+
+            playerShootChainGunUpgrade = this.game.add.audio('playerShootChainGunUpgrade');
+            playerShootChainGunUpgrade.volume = 0.2;
 
             explosionSound = this.game.add.audio('explosionSound');
             explosionSound.volume = 0.2;
@@ -843,8 +848,8 @@
             enemyBullets.setAll('checkWorldBounds', true);
 
             //Temps de spawn enemies
-            this.game.time.events.add(1000, launchGreenEnemy);
-            this.game.time.events.add(15000, launchEnnemiesMain);
+            this.game.time.events.add(5000, launchGreenEnemy);
+            this.game.time.events.add(20000, launchEnnemiesMain);
 
             //  Game over text
             gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER!', 110);
@@ -1093,6 +1098,11 @@ function fireBullet(player) {
                 bullet.scale.set(0.3);
                 bullet.health = 1;
                 playerShootChainGun.play();
+                if (player.level >= 3) {
+                    playerShootChainGun.stop();
+                    game.cache.removeSound('playerShootChainGun');
+                    playerShootChainGunUpgrade.play();
+                }
 
                 // game.physics.arcade.velocityFromAngle(0, bulletSpeed, bullet.body.velocity);
 
