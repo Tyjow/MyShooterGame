@@ -645,7 +645,7 @@
             // this.load.crossOrigin = 'anonymous';
             this.load.crossOrigin = true;
 
-            this.load.image('foreground', 'img/spaceRoc2.png');
+            this.load.image('foreground', 'img/spaceRoc3.png');
             this.load.image('midground', 'img/spacescape.png');
             this.load.image('background', 'img/space4.jpg');
             // this.load.image('player', 'img/ship2.png');
@@ -872,8 +872,8 @@
             // bitmaptext align right
             scoreText.anchor.set(1,0);
 
-            this.foreground = this.add.tileSprite(0, this.game.world.height, this.game.width, this.game.height, 'foreground');
-            this.foreground.anchor.set(0,0.7);
+            this.foreground = this.add.tileSprite(0, this.game.height - this.game.cache.getImage('foreground').height, this.game.width, this.game.height, 'foreground');
+            
             this.foreground.autoScroll(levelSpeedTwo, 0);
 
             //  Cursor keys to fly + space to fire
@@ -1085,7 +1085,7 @@ function launchGreenEnemy() {
     var enemy = greenEnemies.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
     if (enemy) {
-        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - 100));
+        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - this.game.height / 10));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 100;
@@ -1120,7 +1120,7 @@ function launchEnnemiesMain() {
     var enemy = ennemiesMain.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
     if (enemy) {
-        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - 100));
+        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - this.game.height / 10));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 50;
