@@ -808,6 +808,9 @@
             playerBullets.setAll('anchor.y', 0.5);
             playerBullets.setAll('outOfBoundsKill', true);
             playerBullets.setAll('checkWorldBounds', true);
+            playerBullets.forEach( function(bullet) {
+                bullet.health = 1;
+            });
 
             enemyBullets = game.add.group();
             enemyBullets.enableBody = true;
@@ -1014,6 +1017,7 @@
             if (this.player.level >= 3) {
                 playerBullets.forEachAlive(function(bullet){
                     bullet.scale.set(0.4);
+                    bullet.health = 2;
                 });
             }
 
@@ -1048,6 +1052,8 @@ function fireBullet(player) {
                 bullet.reset(player.x + 70, player.y + 40);
                 bullet.body.velocity.x = bulletSpeed;
                 bullet.scale.set(0.3);
+                bullet.health = 1;
+
                 // game.physics.arcade.velocityFromAngle(0, bulletSpeed, bullet.body.velocity);
 
             }
@@ -1260,7 +1266,7 @@ function shipCollideEnemiesMain(player, enemy) {
 
 function hitEnemy(bullet, enemy) {
     
-    enemy.health-=1;
+    enemy.health-=bullet.health;
     bullet.kill();
        
     if (enemy.health <= 0) {
@@ -1289,7 +1295,7 @@ function hitEnemy(bullet, enemy) {
 
 function hitEnemyMain(bullet, enemy) {
 
-    enemy.health-=1;
+    enemy.health-=bullet.health;
     bullet.kill();
     tweenEnnemies = this.game.add.tween(enemy).to( { alpha: 0.5, tint: 0xf1f1f1 }, 20, "Linear", true, 0, 6);
     tweenEnnemies.yoyo(true, 0);
