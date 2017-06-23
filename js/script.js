@@ -1085,7 +1085,7 @@ function launchGreenEnemy() {
     var enemy = greenEnemies.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
     if (enemy) {
-        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - 60));
+        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - 100));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 100;
@@ -1120,7 +1120,7 @@ function launchEnnemiesMain() {
     var enemy = ennemiesMain.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
     if (enemy) {
-        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - 60));
+        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - 100));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 50;
@@ -1372,6 +1372,8 @@ function enemyHitsPlayer (player, bullet) {
     tweenPlayer.yoyo(true, 0);
     tweenPlayer.onComplete.add(function() {  
         tweenPlayer.stop();
+        player.alpha = 1;
+        player.tint = 0xffffff;
     });
 
     player.damage(enemyMainDamageAmount);
