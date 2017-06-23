@@ -87,6 +87,10 @@
     var removeTextLevelUp;
     var playerLevelUpAnim;
     var enemyHealth;
+    var playerShootChainGun;
+    var explosionSound;
+    var mainSound;
+    var levelUpSound;
 
     // addEnemy = function(game,x,y) {
 
@@ -661,6 +665,11 @@
             this.load.bitmapFont('shmupfont', 'img/shmupfont.png', 'img/shmupfont.xml');
             this.load.bitmapFont('spacefont', 'img/tyjowfont.png', 'img/tyjowfont.xml');
 
+            this.load.audio('playerShootChainGun', 'media/shoot5.mp3', true);
+            this.load.audio('explosionSound', 'media/explosion2-sound.mp3', true);
+            this.load.audio('mainSound', 'media/main-sound.ogg', true);
+            this.load.audio('levelUpSound', 'media/levelup-sound.wav', true);
+
             for (var i = 1; i <= 11; i++)
             {
                 this.load.image('bullet0' + i, 'img/bullet0' + i + '.png');
@@ -680,6 +689,18 @@
             this.game.scale.pageAlignVeritcally = true;
             this.game.scale.refresh();
 
+            playerShootChainGun = this.game.add.audio('playerShootChainGun');
+            playerShootChainGun.volume = 0.3;
+
+            explosionSound = this.game.add.audio('explosionSound');
+            explosionSound.volume = 0.2;
+
+            mainSound = this.game.add.audio('mainSound');
+            mainSound.volume = 0.9;
+            mainSound.play();
+
+            levelUpSound = this.game.add.audio('levelUpSound');
+            levelUpSound.volume = 1.1;
 
             // this.background = this.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
             this.background = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
@@ -1021,6 +1042,7 @@
                 AnimlevelUp(this.player);
                 this.player.health = 100;
                 shields.text = 'Shield: ' + Math.max(this.player.health, 0) +'%';
+                levelUpSound.play();
             }
 
             if (this.player.level >= 3) {
@@ -1069,6 +1091,7 @@ function fireBullet(player) {
                 bullet.body.velocity.x = bulletSpeed;
                 bullet.scale.set(0.3);
                 bullet.health = 1;
+                playerShootChainGun.play();
 
                 // game.physics.arcade.velocityFromAngle(0, bulletSpeed, bullet.body.velocity);
 
@@ -1244,6 +1267,7 @@ function shipCollide(player, enemy) {
     explosion.body.velocity.y = enemy.body.velocity.y;
     explosion.alpha = 0.7;
     explosion.play('explosion', 30, false, true);
+    explosionSound.play();
     enemy.kill();
 
     // flash effect on hit
@@ -1267,6 +1291,7 @@ function shipCollideEnemiesMain(player, enemy) {
     explosion.body.velocity.y = enemy.body.velocity.y;
     explosion.alpha = 0.7;
     explosion.play('explosion', 30, false, true);
+    explosionSound.play();
     enemy.kill();
 
     // flash effect on hit
@@ -1295,6 +1320,7 @@ function hitEnemy(bullet, enemy) {
         explosion.body.velocity.y = enemy.body.velocity.y;
         explosion.alpha = 0.7;
         explosion.play('explosion', 30, false, true);
+        explosionSound.play();
        
         enemy.kill();
         // text xp above ennemies 
@@ -1331,6 +1357,7 @@ function hitEnemyMain(bullet, enemy) {
         explosion.body.velocity.y = enemy.body.velocity.y;
         explosion.alpha = 0.7;
         explosion.play('explosion', 30, false, true);
+        explosionSound.play();
 
         enemy.kill();
 
@@ -1356,6 +1383,7 @@ function hitEnemyBullet(bullet, bullet2) {
     explosion.body.velocity.y = bullet.body.velocity.y;
     explosion.alpha = 0.7;
     explosion.play('explosion', 30, false, true);
+    explosionSound.play();
     bullet.kill();
     bullet2.kill();
 };
@@ -1365,6 +1393,7 @@ function enemyHitsPlayer (player, bullet) {
     explosion.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
     explosion.alpha = 0.7;
     explosion.play('explosion', 30, false, true);
+    explosionSound.play();
     bullet.kill();
 
     // flash effect on hit
