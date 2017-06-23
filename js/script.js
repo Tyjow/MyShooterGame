@@ -65,6 +65,7 @@
     var greenEnemyLaunchTimer;
     var gameOver;
     var endLevelOne;
+    var firstLevelText;
     var fireButton;
     var score = 0;
     var scoreText;
@@ -860,6 +861,21 @@
             endLevelOne = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'Level Complete!', 110);
             endLevelOne.anchor.setTo(0.5, 0.5);
             endLevelOne.visible = false;
+
+            // Level 1 Text
+            firstLevelText = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'Level 1', 110);
+            firstLevelText.anchor.setTo(0.5, 0.5);
+            firstLevelText.visible = true;
+            firstLevelText.alpha = 0;
+            var fadeInFirstLevelText = game.add.tween(firstLevelText);
+            fadeInFirstLevelText.to({alpha: 1}, 1000, Phaser.Easing.Linear.None, true);
+            //fadeInEndLevel.onComplete.add(setResetHandlersLevel);
+            /*fadeInFirstLevelText.start();*/
+            fadeInFirstLevelText.yoyo(true, 1000);
+            fadeInFirstLevelText.onComplete.add(function() {
+                firstLevelText.visible = false;
+                firstLevelText.alpha = 0;
+            });
 
             //  An explosion pool
             explosions = game.add.group();
