@@ -692,16 +692,16 @@
             this.game.scale.refresh();
 
             playerShootChainGun = this.game.add.audio('playerShootChainGun');
-            playerShootChainGun.volume = 0.3;
+            playerShootChainGun.volume = 0.2;
 
             playerShootChainGunUpgrade = this.game.add.audio('playerShootChainGunUpgrade');
-            playerShootChainGunUpgrade.volume = 0.2;
+            playerShootChainGunUpgrade.volume = 0.1;
 
             explosionSound = this.game.add.audio('explosionSound');
-            explosionSound.volume = 0.2;
+            explosionSound.volume = 0.3;
 
             mainSound = this.game.add.audio('mainSound');
-            mainSound.volume = 0.9;
+            mainSound.volume = 1;
             mainSound.play();
 
             levelUpSound = this.game.add.audio('levelUpSound');
