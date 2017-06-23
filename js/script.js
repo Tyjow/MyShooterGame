@@ -967,6 +967,7 @@
                       tapRestart.detach();
                       spaceRestart.detach();
                       // restart();
+                      mainSound.stop();
                       this.game.state.restart();
                       score = 0;
                       levelSpeedOne = -40;
@@ -1138,7 +1139,7 @@ function launchGreenEnemy() {
 function launchEnnemiesMain() {
     var MIN_ENEMY_SPACING = 300;
     var MAX_ENEMY_SPACING = 1000;
-    var ENEMY_SPEED = -100;
+    var ENEMY_SPEED = -120;
 
     var enemy = ennemiesMain.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
@@ -1445,6 +1446,7 @@ function levelCleared() {
               tapRestart.detach();
               spaceRestart.detach();
               // restart();
+              mainSound.stop();
               game.state.restart();
               score = 0;
               levelSpeedOne = -40;
