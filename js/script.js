@@ -692,20 +692,20 @@
             this.game.scale.refresh();
 
             playerShootChainGun = this.game.add.audio('playerShootChainGun');
-            playerShootChainGun.volume = 0.2;
+            playerShootChainGun.volume = 0.05;
 
             playerShootChainGunUpgrade = this.game.add.audio('playerShootChainGunUpgrade');
-            playerShootChainGunUpgrade.volume = 0.1;
+            playerShootChainGunUpgrade.volume = 0.03;
 
             explosionSound = this.game.add.audio('explosionSound');
-            explosionSound.volume = 0.3;
+            explosionSound.volume = 0.1;
 
             mainSound = this.game.add.audio('mainSound');
-            mainSound.volume = 1;
+            mainSound.volume = 0.3;
             mainSound.play();
 
             levelUpSound = this.game.add.audio('levelUpSound');
-            levelUpSound.volume = 1.1;
+            levelUpSound.volume = 0.3;
 
             // this.background = this.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
             this.background = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
@@ -964,6 +964,7 @@
                 fadeInGameOver.start();
                 greenEnemyLaunchTimer = game.time.events.stop();
                 ennemiesMainLaunchTimer = game.time.events.stop();
+                playerBullets.removeAll(true);
                 function setResetHandlers() {
                     //  The "click to restart" handler
                     tapRestart = this.game.input.onTap.addOnce(_restart,this);
@@ -1448,6 +1449,7 @@ function levelCleared() {
         fadeInEndLevel.to({alpha: 1}, 1000, Phaser.Easing.Quintic.Out);
         fadeInEndLevel.onComplete.add(setResetHandlersLevel);
         fadeInEndLevel.start();
+        playerBullets.removeAll(true);
         function setResetHandlersLevel() {
             //  The "click to restart" handler
             tapRestart = game.input.onTap.addOnce(_restart,this);
