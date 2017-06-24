@@ -94,6 +94,12 @@
     var mainSound;
     var levelUpSound;
     var electricDamaged;
+    var fadeInFirstLevelText;
+    var style;
+    var textTuto;
+    var barTuto;
+    var wPaused = game.width;
+    var hPaused = game.height;
 
     // addEnemy = function(game,x,y) {
 
@@ -695,6 +701,9 @@
             this.game.scale.refresh();
 
 
+            this.game.time.events.add(Phaser.Timer.SECOND * 3, gamePausedTuto, this);
+
+
             playerShootChainGun = this.game.add.audio('playerShootChainGun');
             playerShootChainGun.volume = 0.05;
 
@@ -865,8 +874,8 @@
             enemyBullets.setAll('checkWorldBounds', true);
 
             //Temps de spawn enemies
-            this.game.time.events.add(5000, launchGreenEnemy);
-            this.game.time.events.add(20000, launchEnnemiesMain);
+            this.game.time.events.add(9000, launchGreenEnemy);
+            this.game.time.events.add(24000, launchEnnemiesMain);
 
             //  Game over text
             gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER!', 110);
@@ -883,15 +892,7 @@
             firstLevelText.anchor.setTo(0.5, 0.5);
             firstLevelText.visible = true;
             firstLevelText.alpha = 0;
-            var fadeInFirstLevelText = game.add.tween(firstLevelText);
-            fadeInFirstLevelText.to({alpha: 1}, 1000, Phaser.Easing.Linear.None, true);
-            //fadeInEndLevel.onComplete.add(setResetHandlersLevel);
-            /*fadeInFirstLevelText.start();*/
-            fadeInFirstLevelText.yoyo(true, 1000);
-            fadeInFirstLevelText.onComplete.add(function() {
-                firstLevelText.visible = false;
-                firstLevelText.alpha = 0;
-            });
+            this.game.time.events.add(Phaser.Timer.SECOND * 4, fadeLevelText, this);
 
             //  An explosion pool
             explosions = game.add.group();
@@ -1126,6 +1127,67 @@
         }
 
     };
+
+function gamePausedTuto () {
+    game.paused = true;
+
+    barTuto = game.add.graphics();
+    barTuto.beginFill(0xffffff, 0.4);
+    barTuto.drawRoundedRect(game.width/3, game.height/3, game.width / 3, game.height / 3, 10);
+
+    style = { font: "32px Arial", fill: "#000000", align: "center", boundsAlignH: "center", boundsAlignV: "middle"};
+    textTuto = game.add.text(game.world.centerX, game.world.centerY, "WELCOME TO MY DEMO ! \nuse ARROW keys for move \nand SPACEBAR key for shooting \nClick or press ESC to resume \nHave fun ! :)", style);
+    textTuto.padding.set(7,0);
+    textTuto.setShadow(5, 5, 'rgba(0,0,0,0.3)', 5);
+    textTuto.anchor.setTo(0.5, 0.5);
+
+    var button = game.input.keyboard.addKey(Phaser.Keyboard.ESC);
+    button.onDown.add(unpause, self);
+    game.input.onDown.add(unpause, self);
+    
+
+
+};
+
+function unpause (event){
+
+    // Only act if paused
+    if(game.paused){
+
+        // Calculate the corners of the menu
+        var x1 = wPaused/2 - 270/2, x2 = wPaused/2 + 270/2,
+            y1 = hPaused/2 - 180/2, y2 = hPaused/2 + 180/2;
+
+        // Check if the click was inside the menu
+        if(event.x > x1 && event.x < x2 && event.y > y1 && event.y < y2 ){
+
+            // Get menu local coordinates for the click
+            var x = event.x - x1,
+                y = event.y - y1;
+
+        }
+        else {
+          // Remove the tuto
+          barTuto.destroy();
+          textTuto.destroy();
+
+          // Unpause the game
+          game.paused = false;
+      }
+    }   
+};
+
+function fadeLevelText () {
+    fadeInFirstLevelText = game.add.tween(firstLevelText);
+    fadeInFirstLevelText.to({alpha: 1}, 1000, Phaser.Easing.Linear.None, true);
+    //fadeInEndLevel.onComplete.add(setResetHandlersLevel);
+    /*fadeInFirstLevelText.start();*/
+    fadeInFirstLevelText.yoyo(true, 1000);
+    fadeInFirstLevelText.onComplete.add(function() {
+        firstLevelText.visible = false;
+        firstLevelText.alpha = 0;
+    });
+};
 
 function fireBullet(player) {
     //  Grab the first bullet we can from the pool
