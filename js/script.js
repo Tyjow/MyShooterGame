@@ -93,6 +93,7 @@
     var explosionSound;
     var mainSound;
     var levelUpSound;
+    var electricDamaged;
 
     // addEnemy = function(game,x,y) {
 
@@ -664,6 +665,7 @@
             this.load.image('enemyBullets', 'img/bullet01.png');
             this.load.spritesheet('explosionTrail', 'img/explode.png', 128, 128);
             this.load.spritesheet('explosion', 'img/explode-anim.png', 300, 292);
+            this.load.spritesheet('electricDamaged', 'img/electric-damaged.png', 512, 512);
             this.load.bitmapFont('shmupfont', 'img/shmupfont.png', 'img/shmupfont.xml');
             this.load.bitmapFont('spacefont', 'img/tyjowfont.png', 'img/tyjowfont.xml');
 
@@ -691,6 +693,7 @@
             this.game.scale.pageAlignHorizontally = true;
             this.game.scale.pageAlignVeritcally = true;
             this.game.scale.refresh();
+
 
             playerShootChainGun = this.game.add.audio('playerShootChainGun');
             playerShootChainGun.volume = 0.05;
@@ -762,6 +765,14 @@
                 shipTrail.start(false, 5000, 10);
             });
 
+            //  Electric Damaged
+            electricDamaged = this.game.add.sprite(5, 5, 'electricDamaged');
+            electricDamaged.animations.add('electricDamaged', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 10, true);
+            electricDamaged.visible = false;
+            electricDamaged.scale.set(0.15);
+            
+            
+
 
             shipTrail = this.game.add.emitter(this.player.x, this.player.y + 10, 400);
             shipTrail.width = 10;
@@ -820,6 +831,11 @@
                addEnemyEmitterTrail(enemy);
                enemy.nextFireChild = 0;
                enemyMainDamageAmount = damageAmountEnemies * 2;
+               enemy.events.onKilled.add(function(){
+                      
+                    enemy.trail.kill();
+                    
+                });
                enemy.events.onRemovedFromGroup.add(function(){
                       
                     enemy.trail.kill();
@@ -1068,12 +1084,23 @@
                 levelUpSound.play();
             }
 
+            // level 3 or more higher playerBullets become more powerful
             if (this.player.level >= 3) {
                 playerBullets.forEachAlive(function(bullet){
                     bullet.scale.set(0.4);
                     bullet.health = 2;
                 });
             }
+
+
+            if (this.player.health <= 100 / 4) {
+               AnimDamaged(this.player);
+            }
+            if (this.player.health >= 100 / 4) {
+                electricDamaged.visible = false;
+                electricDamaged.animations.stop();
+            }
+
 
             // score condition end level 1
             smoothStopScroll();
@@ -1136,7 +1163,7 @@ function launchGreenEnemy() {
     var enemy = greenEnemies.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
     if (enemy) {
-        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - this.game.height / 8));
+        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - this.game.height / 7));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 100;
@@ -1171,7 +1198,7 @@ function launchEnnemiesMain() {
     var enemy = ennemiesMain.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
     if (enemy) {
-        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - this.game.height / 8));
+        enemy.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - this.game.height / 7));
         enemy.body.velocity.y = game.rnd.integerInRange(50, 100);
         enemy.body.velocity.x = ENEMY_SPEED;
         enemy.body.drag.y = 50;
@@ -1252,6 +1279,18 @@ function enemiesFireMain () {
             }
         }
     }   
+};
+
+function AnimDamaged (player) {
+    electricDamaged.x = player.x;
+    electricDamaged.y = player.y - 5;
+    electricDamaged.visible = true;
+    electricDamaged.play('electricDamaged');
+    if (!player.alive) {
+        electricDamaged.animations.stop();
+        electricDamaged.visible = false;
+        electricDamaged.kill();
+    }
 };
 
 function AnimlevelUp (player) {
