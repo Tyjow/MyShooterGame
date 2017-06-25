@@ -134,6 +134,10 @@
                 shipTrail.start(false, 5000, 10);
             });
 
+            
+            /*this.player.level = +localStorage.getItem('currentLevel') || 0;
+            console.log(this.player.level);*/
+
             //  Electric Damaged
             electricDamaged = this.game.add.sprite(5, 5, 'electricDamaged');
             electricDamaged.animations.add('electricDamaged', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 10, true);
@@ -231,7 +235,7 @@
             gameOver.visible = false;
 
             // End Level Text
-            endLevelOne = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'Level Complete!', 110);
+            endLevelOne = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'Level Completed!', 110);
             endLevelOne.anchor.setTo(0.5, 0.5);
             endLevelOne.visible = false;
 
@@ -318,6 +322,7 @@
                       spaceRestart.detach();
                       // restart();
                       mainSound.stop();
+                      localStorage.clear();
                       this.game.state.start("GameMenu");
                       score = 0;
                       levelSpeedOne = -40;
@@ -388,6 +393,8 @@
             if (this.player.exp >= getXpPlayer) {
                 this.player.level++;
                 level.text = 'Level: ' + this.player.level;
+                /*currentLevel = localStorage.setItem('currentLevel', this.player.level);
+                console.log(currentLevel);*/
                 
                 // Anim level up
                 AnimlevelUp(this.player);
@@ -882,14 +889,7 @@ function levelCleared() {
               tapRestart.detach();
               spaceRestart.detach();
               // restart();
-              mainSound.stop();
-              game.state.restart();
-              score = 0;
-              levelSpeedOne = -40;
-              levelSpeedTwo = -100;
-              nextIncrement = 0;
-              livingEnemies = [];
-              livingEnemiesMain = [];
+              game.state.start('level2');
               greenEnemyLaunchTimer = game.time.events.start();
               ennemiesMainLaunchTimer = game.time.events.start();
             }

@@ -11,6 +11,7 @@ Splash.prototype = {
     game.load.script('WebFont', 'vendor/webfontloader.js');
     game.load.script('gamemenu','states/gamemenu.js');
     game.load.script('level1', 'states/level1.js');
+    game.load.script('level2', 'states/level2.js');
     game.load.script('gameover','states/gameover.js');
     game.load.script('credits', 'states/credits.js');
     game.load.script('options', 'states/options.js');
@@ -88,6 +89,7 @@ Splash.prototype = {
 
     game.state.add("GameMenu",GameMenu);
     game.state.add("level1",level1);
+    game.state.add("level2",level2);
     game.state.add("GameOver",GameOver);
     game.state.add("Credits",Credits);
     game.state.add("Options",Options);

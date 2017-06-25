@@ -49,7 +49,7 @@ GameMenu.prototype = {
     text.anchor.set(0.5, 0.5);
     this.addMenuOption('Start', function (e) {
       this.game.state.start("level1");
-      music.stop();
+      music.stop(); 
     });
     this.addMenuOption('Options', function (e) {
       this.game.state.start("Options");
