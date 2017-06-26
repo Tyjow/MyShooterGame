@@ -44,6 +44,11 @@
     var barTuto;
     var wPaused = game.width;
     var hPaused = game.height;
+    var pauseGame;
+    var removePause;
+    var timeFadeTextLevel = 4;
+    var timeSpawnGreenEnnemies = 9000;
+    var timeSpawnMainEnnemies = 24000;
 
 
     level1.prototype = {
@@ -81,7 +86,7 @@
             this.game.scale.refresh();
 
 
-            this.game.time.events.add(Phaser.Timer.SECOND * 3, gamePausedTuto, this);
+            removePause = this.game.time.events.add(Phaser.Timer.SECOND * 3, gamePausedTuto, this);
 
 
             playerShootChainGun = this.game.add.audio('playerShootChainGun');
@@ -192,7 +197,7 @@
                enemy.animations.play('enemyFlyMain');
                addEnemyEmitterTrail(enemy);
                enemy.nextFireChild = 0;
-               enemyMainDamageAmount = damageAmountEnemies * 2;
+               enemyMainDamageAmount = damageAmountEnemies;
                enemy.events.onKilled.add(function(){
                       
                     enemy.trail.kill();
@@ -227,8 +232,8 @@
             enemyBullets.setAll('checkWorldBounds', true);
 
             //Temps de spawn enemies
-            this.game.time.events.add(9000, launchGreenEnemy);
-            this.game.time.events.add(24000, launchEnnemiesMain);
+            this.game.time.events.add(timeSpawnGreenEnnemies, launchGreenEnemy);
+            this.game.time.events.add(timeSpawnMainEnnemies, launchEnnemiesMain);
 
             //  Game over text
             gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER!', 110);
@@ -245,7 +250,7 @@
             firstLevelText.anchor.setTo(0.5, 0.5);
             firstLevelText.visible = true;
             firstLevelText.alpha = 0;
-            this.game.time.events.add(Phaser.Timer.SECOND * 4, fadeLevelText, this);
+            this.game.time.events.add(Phaser.Timer.SECOND * timeFadeTextLevel, fadeLevelText, this);
 
             //  An explosion pool
             explosions = game.add.group();
@@ -444,11 +449,19 @@
             // enemiesFire();
             enemiesFireMain();
 
+            if (pauseGame == 0) {
+                this.game.time.events.remove(removePause);
+                timeFadeTextLevel = 2;
+                timeSpawnGreenEnnemies = 7000;
+                timeSpawnMainEnnemies = 22000;
+            }
+
         }
 
     };
 
 function gamePausedTuto () {
+    pauseGame = +localStorage.getItem('gameWasPaused') || 1;
     game.paused = true;
 
     barTuto = game.add.graphics();
@@ -493,6 +506,8 @@ function unpause (event){
 
           // Unpause the game
           game.paused = false;
+          pauseGame = 0;
+          localStorage.setItem('gameWasPaused', pauseGame);
       }
     }   
 };

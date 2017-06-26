@@ -92,7 +92,7 @@
             greenEnemies = game.add.group();
             greenEnemies.enableBody = true;
             greenEnemies.physicsBodyType = Phaser.Physics.ARCADE;
-            greenEnemies.createMultiple(30, 'enemy');
+            greenEnemies.createMultiple(35, 'enemy');
             greenEnemies.setAll('scale.x', -0.3);
             greenEnemies.setAll('scale.y', 0.3);
             greenEnemies.setAll('outOfBoundsKill', true);
@@ -114,7 +114,7 @@
             ennemiesMain = game.add.group();
             ennemiesMain.enableBody = true;
             ennemiesMain.physicsBodyType = Phaser.Physics.ARCADE;
-            ennemiesMain.createMultiple(2, 'enemyMain');
+            ennemiesMain.createMultiple(4, 'enemyMain');
             ennemiesMain.setAll('outOfBoundsKill', true);
             ennemiesMain.setAll('checkWorldBounds', true);
             ennemiesMain.forEach(function(enemy){
