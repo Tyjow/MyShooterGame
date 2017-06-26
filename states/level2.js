@@ -52,8 +52,6 @@
             this.player.scale.y = 0.4;
             this.player.health = 100;
             this.player.frame = 7;
-            /*this.player.exp = 0;*/
-            /*this.player.level = 1;*/
             this.player.animations.add('walkBottom', [6, 5, 4, 3, 2 ,1 ,0], 10, true);
             this.player.animations.add('walkTop', [8, 9, 10, 11, 12 ,13 ,14 ,15], 10, true);
             this.player.alpha = 1;
@@ -70,8 +68,8 @@
                 shipTrail.start(false, 5000, 10);
             });
 
-            /*this.player.level = +localStorage.getItem('currentLevel') || 0;
-            console.log(this.player.level);*/
+            this.player.level = +localStorage.getItem('currentLevel') || 1;
+            this.player.exp = +localStorage.getItem('currentExp') || 0;
 
             //  Electric Damaged
             electricDamaged = this.game.add.sprite(5, 5, 'electricDamaged');
@@ -161,8 +159,8 @@
             enemyBullets.setAll('checkWorldBounds', true);
 
             //Temps de spawn enemies
-            this.game.time.events.add(9000, launchGreenEnemy);
-            this.game.time.events.add(24000, launchEnnemiesMain);
+            this.game.time.events.add(7000, launchGreenEnemy);
+            this.game.time.events.add(22000, launchEnnemiesMain);
 
             //  Game over text
             gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER!', 110);
@@ -324,7 +322,7 @@
             }
 
             // set exp to get for level up
-            gainXpPlayer = 75 * greenEnemiesXp;
+            gainXpPlayer = 125 * greenEnemiesXp;
 
             getXpPlayer = this.player.level * gainXpPlayer;
 
@@ -383,7 +381,7 @@
     };
 
     function smoothStopScrollLevel2(){
-    if (score >= 80000) {
+    if (score >= 40000) {
         if (game.time.now >= nextIncrement) {
             if (nextIncrement == 0) {
                 nextIncrement = game.time.now;

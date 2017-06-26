@@ -48,8 +48,9 @@ GameMenu.prototype = {
     /*text.setShadow(3, 3, 'rgba(0,0,0,0.5)', 5);*/
     text.anchor.set(0.5, 0.5);
     this.addMenuOption('Start', function (e) {
+      window.localStorage.clear();
       this.game.state.start("level1");
-      music.stop(); 
+      music.stop();
     });
     this.addMenuOption('Options', function (e) {
       this.game.state.start("Options");

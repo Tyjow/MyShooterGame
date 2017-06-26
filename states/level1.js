@@ -135,8 +135,9 @@
             });
 
             
-            /*this.player.level = +localStorage.getItem('currentLevel') || 0;
-            console.log(this.player.level);*/
+            this.player.level = +localStorage.getItem('currentLevel') || 1;
+            this.player.exp = +localStorage.getItem('currentExp') || 0;
+            
 
             //  Electric Damaged
             electricDamaged = this.game.add.sprite(5, 5, 'electricDamaged');
@@ -322,7 +323,6 @@
                       spaceRestart.detach();
                       // restart();
                       mainSound.stop();
-                      localStorage.clear();
                       this.game.state.start("GameMenu");
                       score = 0;
                       levelSpeedOne = -40;
@@ -386,15 +386,15 @@
             }
 
             // set exp to get for level up
-            gainXpPlayer = 75 * greenEnemiesXp;
+            gainXpPlayer = 125 * greenEnemiesXp;
 
             getXpPlayer = this.player.level * gainXpPlayer;
 
             if (this.player.exp >= getXpPlayer) {
                 this.player.level++;
                 level.text = 'Level: ' + this.player.level;
-                /*currentLevel = localStorage.setItem('currentLevel', this.player.level);
-                console.log(currentLevel);*/
+                localStorage.setItem('currentLevel', this.player.level);
+                
                 
                 // Anim level up
                 AnimlevelUp(this.player);
@@ -402,6 +402,8 @@
                 shields.text = 'Shield: ' + Math.max(this.player.health, 0) +'%';
                 levelUpSound.play();
             }
+
+            localStorage.setItem('currentExp', this.player.exp);
 
             // level 3 or more higher playerBullets become more powerful
             if (this.player.level >= 3) {
@@ -451,7 +453,7 @@ function gamePausedTuto () {
 
     barTuto = game.add.graphics();
     barTuto.beginFill(0xffffff, 0.4);
-    barTuto.drawRoundedRect(game.width/3, game.height/3, game.width / 3, game.height / 3, 10);
+    barTuto.drawRoundedRect(game.width/3.35, game.height/3.35, game.width / 2.5, game.height / 2.5, 10);
 
     style = { font: "32px Arial", fill: "#000000", align: "center", boundsAlignH: "center", boundsAlignV: "middle"};
     textTuto = game.add.text(game.world.centerX, game.world.centerY, "WELCOME TO MY DEMO ! \nuse ARROW keys for move \nand SPACEBAR key for shooting \nClick or press ESC to resume \nHave fun ! :)", style);
@@ -875,12 +877,6 @@ function levelCleared() {
         fadeInEndLevel.onComplete.add(setResetHandlersLevel);
         fadeInEndLevel.start();
         playerBullets.removeAll(true);
-        /*if(localStorage.getItem('highscore') === null){
-            localStorage.setItem('highscore',score);
-        }
-        else if(score > localStorage.getItem('highscore')){
-            localStorage.setItem('highscore',score);
-        }*/
         function setResetHandlersLevel() {
             //  The "click to restart" handler
             tapRestart = game.input.onTap.addOnce(_restart,this);
