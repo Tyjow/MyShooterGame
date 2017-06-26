@@ -382,7 +382,7 @@
 
             //  Keep the shipTrail lined up with the ship
             shipTrail.x = this.player.x;
-            shipTrail.y = this.player.y + 30;
+            shipTrail.y = this.player.y + 20;
 
             //  Fire bullet
             if (this.player.alive && (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))) {
@@ -532,7 +532,7 @@ function fireBullet(player) {
         if (bullet)
             {
                 //  And fire it
-                bullet.reset(player.x + 70, player.y + 40);
+                bullet.reset(player.x + 70, player.y + 35);
                 bullet.body.velocity.x = bulletSpeed;
                 bullet.scale.set(0.3);
                 bullet.health = 1;
@@ -697,11 +697,11 @@ function AnimlevelUp (player) {
 
     animlevelUpEmit.update = function(){
 
-        trailAnim.x = player.x + 40;
-        trailAnim.y = player.y;
+        trailAnim.x = player.x + 35;
+        trailAnim.y = player.y - 10;
 
         trailAnimText.x = player.x;
-        trailAnimText.y = player.y;
+        trailAnimText.y = player.y - 5;
    }
 };
 

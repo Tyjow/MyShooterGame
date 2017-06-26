@@ -42,7 +42,7 @@ Splash.prototype = {
     game.load.image('playerBullets', 'assets/sprites/bullet01.png');
     game.load.image('enemyBullets', 'assets/sprites/bullet01.png');
 
-    game.load.spritesheet('player', 'assets/sprites/player/player-ship.png', 200, 170);
+    game.load.spritesheet('player', 'assets/sprites/player/player-ship.png', 178, 165);
     game.load.spritesheet('playerLevelUpAnim', 'assets/sprites/player/levelup-anim.png', 128, 128);
 
     game.load.spritesheet('enemy', 'assets/sprites/enemies/enemies-sat1.png', 94, 101);
