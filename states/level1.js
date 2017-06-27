@@ -251,7 +251,7 @@
             this.game.time.events.add(timeSpawnMainEnnemies, launchEnnemiesMain);
 
             // Temps de spawn asteroids
-            this.game.time.events.add(9000, launchLittleAsteroid);
+            this.game.time.events.add(12000, launchLittleAsteroid);
 
             //  Game over text
             gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER!', 110);
@@ -535,7 +535,7 @@ function gamePausedTuto2 () {
     barTuto.drawRoundedRect(game.width/3.35, game.height/3.35, game.width / 2.5, game.height / 2.5, 10);
 
     style = { font: "32px Arial", fill: "#000000", align: "center", boundsAlignH: "center", boundsAlignV: "middle"};
-    textTuto = game.add.text(game.world.centerX, game.world.centerY, "Sometimes, asteroids can contain an orb, \ntake it for restored your shield !", style);
+    textTuto = game.add.text(game.world.centerX, game.world.centerY, "Some asteroids can contain an orb, \ntake it for restored your shield !", style);
     textTuto.padding.set(7,0);
     textTuto.setShadow(5, 5, 'rgba(0,0,0,0.3)', 5);
     textTuto.anchor.setTo(0.5, 0.5);
@@ -994,11 +994,20 @@ function hitAsteroid(bullet, asteroid) {
             lootEnergy.animations.add('shieldEnergy', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], 20, true);
             lootEnergy.play('shieldEnergy');
 
+
             pauseGame2 = 0;
-            console.log(lootEnergy);
-            if (pauseGame2 == 0) {
+
+            livingShieldChild.length = 0;
+            for (var i = 0; i < shieldEnergy.children.length; i++){
+                livingShieldChild.push(shieldEnergy.children[0]);
+            }
+            var first = livingShieldChild[0];
+
+            if (pauseGame2 == 0 && first.visible) {
+                console.log(first);
                 gamePausedTuto2();
             }
+           
         }
 
     }
