@@ -35,12 +35,15 @@ Splash.prototype = {
     game.load.image('options-bg', 'assets/images/options-bg.jpg');
     game.load.image('gameover-bg', 'assets/images/gameover-bg.jpg');
 
-    game.load.image('foreground', 'assets/sprites/level1/spaceRoc3.png');
+    game.load.image('foreground', 'assets/sprites/level1/stars.png');
     game.load.image('midground', 'assets/sprites/level1/spacescape.png');
     game.load.image('background', 'assets/sprites/level1/space4.jpg');
 
     game.load.image('playerBullets', 'assets/sprites/bullet01.png');
     game.load.image('enemyBullets', 'assets/sprites/bullet01.png');
+
+    game.load.spritesheet('littleAsteroid', 'assets/sprites/little-asteroid.png', 147, 196);
+    game.load.spritesheet('shieldEnergy', 'assets/sprites/powerups/shield-energy.png', 130, 129);
 
     game.load.spritesheet('player', 'assets/sprites/player/player-ship.png', 178, 165);
     game.load.spritesheet('playerLevelUpAnim', 'assets/sprites/player/levelup-anim.png', 128, 128);

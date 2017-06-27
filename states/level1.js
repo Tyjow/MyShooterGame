@@ -25,6 +25,7 @@
     var getXpPlayer;
     var tweenPlayer;
     var tweenEnnemies;
+    var tweenAsteroid;
     var levelSpeedOne = -40;
     var levelSpeedTwo = -100;
     var nextIncrement = 0;
@@ -49,6 +50,9 @@
     var timeFadeTextLevel = 4;
     var timeSpawnGreenEnnemies = 9000;
     var timeSpawnMainEnnemies = 24000;
+    var littleAsteroid;
+    var shieldEnergy;
+    var randomLoot;
 
 
     level1.prototype = {
@@ -112,7 +116,7 @@
             this.midground = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'midground');
             this.midground.autoScroll(levelSpeedOne, 0);
 
-            this.foreground = this.add.tileSprite(0, this.game.height - this.game.cache.getImage('foreground').height, this.game.width, this.game.height, 'foreground');
+            this.foreground = this.add.tileSprite(0, 0, this.game.width, this.game.height, 'foreground');
             this.foreground.autoScroll(levelSpeedTwo, 0);
 
 
@@ -149,8 +153,17 @@
             electricDamaged.animations.add('electricDamaged', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 10, true);
             electricDamaged.visible = false;
             electricDamaged.scale.set(0.15);
-            
 
+            // shield energy group
+            shieldEnergy = game.add.group();
+            shieldEnergy.enableBody = true;
+            shieldEnergy.physicsBodyType = Phaser.Physics.ARCADE;
+            shieldEnergy.setAll('anchor.x', 0.5);
+            shieldEnergy.setAll('anchor.y', 0.5);
+            shieldEnergy.setAll('outOfBoundsKill', true);
+            shieldEnergy.setAll('checkWorldBounds', true);
+            
+            // player ship trail group
             shipTrail = this.game.add.emitter(this.player.x, this.player.y + 10, 400);
             shipTrail.width = 10;
             shipTrail.makeParticles('explosionTrail', [1,2,3,4,5]);
@@ -235,6 +248,9 @@
             this.game.time.events.add(timeSpawnGreenEnnemies, launchGreenEnemy);
             this.game.time.events.add(timeSpawnMainEnnemies, launchEnnemiesMain);
 
+            // Temps de spawn asteroids
+            this.game.time.events.add(9000, launchLittleAsteroid);
+
             //  Game over text
             gameOver = game.add.bitmapText(game.world.centerX, game.world.centerY, 'spacefont', 'GAME OVER!', 110);
             gameOver.anchor.setTo(0.5, 0.5);
@@ -263,6 +279,25 @@
             explosions.setAll('scale.y', 0.4);
             explosions.forEach( function(explosion) {
                 explosion.animations.add('explosion');
+            });
+
+            //  Asteroid
+            littleAsteroid = game.add.group();
+            littleAsteroid.enableBody = true;
+            littleAsteroid.physicsBodyType = Phaser.Physics.ARCADE;
+            littleAsteroid.createMultiple(5, 'littleAsteroid');
+            littleAsteroid.setAll('anchor.x', 0.5);
+            littleAsteroid.setAll('anchor.y', 0.5);
+            littleAsteroid.setAll('scale.x', -0.4);
+            littleAsteroid.setAll('scale.y', 0.4);
+            littleAsteroid.setAll('outOfBoundsKill', true);
+            littleAsteroid.setAll('checkWorldBounds', true);
+            littleAsteroid.forEach( function(asteroid) {
+                asteroid.health = 2;
+                asteroid.alpha = 1;
+                greenDamageAmount = damageAmountEnemies;
+                asteroid.animations.add('littleAsteroidFly', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26], 5, true);
+                asteroid.animations.play('littleAsteroidFly');
             });
 
             //  Animation level up player
@@ -305,8 +340,12 @@
             this.game.physics.arcade.overlap(playerBullets, greenEnemies, hitEnemy, null, this);
             this.game.physics.arcade.overlap(this.player, ennemiesMain, shipCollideEnemiesMain, null, this);
             this.game.physics.arcade.overlap(playerBullets, ennemiesMain, hitEnemyMain, null, this);
+            this.game.physics.arcade.overlap(this.player, littleAsteroid, shipCollideAsteroid, null, this);
+            this.game.physics.arcade.overlap(this.player, shieldEnergy, shipCollideShieldEnergy, null, this);
+            this.game.physics.arcade.overlap(playerBullets, littleAsteroid, hitAsteroid, null, this);
             this.game.physics.arcade.overlap(enemyBullets, this.player, enemyHitsPlayer, null, this);
             this.game.physics.arcade.overlap(playerBullets, enemyBullets, hitEnemyBullet, null, this);
+
 
             //  Game over?
             if (! this.player.alive && gameOver.visible === false) {
@@ -318,7 +357,9 @@
                 fadeInGameOver.start();
                 greenEnemyLaunchTimer = game.time.events.stop();
                 ennemiesMainLaunchTimer = game.time.events.stop();
+                littleAsteroidLaunchTimer = game.time.events.stop();
                 playerBullets.removeAll(true);
+                shieldEnergy.removeAll(true);
                 function setResetHandlers() {
                     //  The "click to restart" handler
                     tapRestart = this.game.input.onTap.addOnce(_restart,this);
@@ -337,6 +378,7 @@
                       livingEnemiesMain = [];
                       greenEnemyLaunchTimer = game.time.events.start();
                       ennemiesMainLaunchTimer = game.time.events.start();
+                      littleAsteroidLaunchTimer = game.time.events.start();
                     }
                 }
             }
@@ -403,7 +445,6 @@
                 
                 // Anim level up
                 AnimlevelUp(this.player);
-                this.player.health = 100;
                 shields.text = 'Shield: ' + Math.max(this.player.health, 0) +'%';
                 levelUpSound.play();
             }
@@ -435,6 +476,7 @@
             if (levelSpeedOne >= -39 && levelSpeedTwo >= -99) {
                 greenEnemyLaunchTimer = game.time.events.stop();
                 ennemiesMainLaunchTimer = game.time.events.stop();
+                littleAsteroidLaunchTimer = game.time.events.stop();
             }
 
             // remove all element on screen and add msg Level Complete
@@ -469,7 +511,7 @@ function gamePausedTuto () {
     barTuto.drawRoundedRect(game.width/3.35, game.height/3.35, game.width / 2.5, game.height / 2.5, 10);
 
     style = { font: "32px Arial", fill: "#000000", align: "center", boundsAlignH: "center", boundsAlignV: "middle"};
-    textTuto = game.add.text(game.world.centerX, game.world.centerY, "WELCOME TO MY DEMO ! \nuse ARROW keys for move \nand SPACEBAR key for shooting \nClick or press ESC to resume \nHave fun ! :)", style);
+    textTuto = game.add.text(game.world.centerX, game.world.centerY, "HOW TO PLAY : \nUse ARROW keys for move \nand SPACEBAR key for shooting \nClick or press ESC to resume \nHave fun ! :)", style);
     textTuto.padding.set(7,0);
     textTuto.setShadow(5, 5, 'rgba(0,0,0,0.3)', 5);
     textTuto.anchor.setTo(0.5, 0.5);
@@ -614,6 +656,33 @@ function launchEnnemiesMain() {
 
     // Send another enemy soon
     ennemiesMainLaunchTimer = game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchEnnemiesMain);
+};
+
+function launchLittleAsteroid() {
+    var MIN_ASTEROID_SPACING = 3000;
+    var MAX_ASTEROID_SPACING = 10000;
+    var ASTEROID_SPEED = -75;
+
+    var asteroid = littleAsteroid.getFirstExists(false);
+
+    if (asteroid) {
+        asteroid.reset(this.game.width, game.rnd.integerInRange(0, this.game.height - this.game.height / 7));
+        asteroid.body.velocity.y = game.rnd.integerInRange(50, 100);
+        asteroid.body.velocity.x = ASTEROID_SPEED;
+        asteroid.body.drag.y = 100;
+        asteroid.health = 2;
+
+        asteroid.update = function(){
+            
+            // Kill enemies once they go off screen
+            if (asteroid.x > this.game.width) {
+                asteroid.kill();
+            }
+        }
+    }
+
+    // Send another enemy soon
+    littleAsteroidLaunchTimer = game.time.events.add(game.rnd.integerInRange(MIN_ASTEROID_SPACING, MAX_ASTEROID_SPACING), launchLittleAsteroid);
 };
 
 
@@ -764,6 +833,43 @@ function shipCollideEnemiesMain(player, enemy) {
     
 };
 
+function shipCollideAsteroid(player, asteroid) {
+    var explosion = explosions.getFirstExists(false);
+    explosion.reset(asteroid.body.x + asteroid.body.halfWidth, asteroid.body.y + asteroid.body.halfHeight);
+    explosion.body.velocity.y = asteroid.body.velocity.y;
+    explosion.alpha = 0.7;
+    explosion.play('explosion', 30, false, true);
+    explosionSound.play();
+    asteroid.kill();
+
+    // flash effect on hit
+    tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5, tint: 0xf1f1f1 }, 50, "Linear", true, 0, 6);
+    tweenPlayer.yoyo(true, 0);
+    tweenPlayer.onComplete.add(function() {  
+        tweenPlayer.stop();
+        player.alpha = 1;
+        player.tint = 0xffffff;
+    });
+
+    player.damage(greenDamageAmount);
+    shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
+
+    
+};
+
+function shipCollideShieldEnergy(player, shieldEnergy) {
+
+    shieldEnergy.kill();
+    if (player.health <= 99) {
+        player.health+=20;
+    }
+    if (player.health > 100) {
+        player.health = 100;
+    }
+    shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
+    
+};
+
 function hitEnemy(bullet, enemy) {
     
     enemy.health-=bullet.health;
@@ -832,6 +938,46 @@ function hitEnemyMain(bullet, enemy) {
     }
 };
 
+function hitAsteroid(bullet, asteroid) {
+    
+    asteroid.health-=bullet.health;
+    bullet.kill();
+    tweenAsteroid = this.game.add.tween(asteroid).to( { alpha: 0.5, tint: 0xf1f1f1 }, 20, "Linear", true, 0, 6);
+    tweenAsteroid.yoyo(true, 0);
+    tweenAsteroid.onComplete.add(function() {
+        tweenAsteroid.stop();
+        asteroid.alpha = 1;
+        asteroid.tint = 0xffffff;
+    });
+       
+    if (asteroid.health <= 0) {
+        var explosion = explosions.getFirstExists(false);
+        explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
+        explosion.body.velocity.y = asteroid.body.velocity.y;
+        explosion.alpha = 0.7;
+        explosion.play('explosion', 30, false, true);
+        explosionSound.play();
+       
+        asteroid.kill();
+
+        // random loot from asteroid
+        randomLoot = game.rnd.integerInRange(1,5);
+
+        if (randomLoot == 1) {
+            // shield energy
+            var lootEnergy = shieldEnergy.create(asteroid.x, asteroid.y, 'shieldEnergy');
+            lootEnergy.anchor.setTo(0.5,0.5);
+            lootEnergy.scale.set(1);
+            lootEnergy.animations.add('shieldEnergy', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], 20, true);
+            lootEnergy.play('shieldEnergy');
+
+        }
+
+    }
+};
+
+
+
 function hitEnemyBullet(bullet, bullet2) {
     var explosion = explosions.getFirstExists(false);
     explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
@@ -892,6 +1038,7 @@ function levelCleared() {
         fadeInEndLevel.onComplete.add(setResetHandlersLevel);
         fadeInEndLevel.start();
         playerBullets.removeAll(true);
+        shieldEnergy.removeAll(true);
         function setResetHandlersLevel() {
             //  The "click to restart" handler
             tapRestart = game.input.onTap.addOnce(_restart,this);
@@ -903,6 +1050,7 @@ function levelCleared() {
               game.state.start('level2');
               greenEnemyLaunchTimer = game.time.events.start();
               ennemiesMainLaunchTimer = game.time.events.start();
+              littleAsteroidLaunchTimer = game.time.events.start();
             }
         }
     }
