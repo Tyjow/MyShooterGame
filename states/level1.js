@@ -19,6 +19,7 @@
     var enemyBullets;
     var livingEnemies = [];
     var livingEnemiesMain = [];
+    var livingShieldChild = [];
     var nextFireEnemy = 0;
     var removeTextXp;
     var gainXpPlayer;
@@ -46,6 +47,7 @@
     var wPaused = game.width;
     var hPaused = game.height;
     var pauseGame;
+    var pauseGame2;
     var removePause;
     var timeFadeTextLevel = 4;
     var timeSpawnGreenEnnemies = 9000;
@@ -331,6 +333,8 @@
 
             fireButton = this.input.keyboard.addKey(Phaser.Keyboard.ESC);
 
+       
+
         },
 
         update: function () {
@@ -520,8 +524,25 @@ function gamePausedTuto () {
     button.onDown.add(unpause, self);
     game.input.onDown.add(unpause, self);
     
+};
 
+function gamePausedTuto2 () {
+    pauseGame2 = +localStorage.getItem('gameWasPaused2') || 1;
+    game.paused = true;
 
+    barTuto = game.add.graphics();
+    barTuto.beginFill(0xffffff, 0.4);
+    barTuto.drawRoundedRect(game.width/3.35, game.height/3.35, game.width / 2.5, game.height / 2.5, 10);
+
+    style = { font: "32px Arial", fill: "#000000", align: "center", boundsAlignH: "center", boundsAlignV: "middle"};
+    textTuto = game.add.text(game.world.centerX, game.world.centerY, "Sometimes, asteroids can contain an orb, \ntake it for restored your shield !", style);
+    textTuto.padding.set(7,0);
+    textTuto.setShadow(5, 5, 'rgba(0,0,0,0.3)', 5);
+    textTuto.anchor.setTo(0.5, 0.5);
+
+    var button = game.input.keyboard.addKey(Phaser.Keyboard.ESC);
+    button.onDown.add(unpause, self);
+    game.input.onDown.add(unpause, self);
 };
 
 function unpause (event){
@@ -549,7 +570,9 @@ function unpause (event){
           // Unpause the game
           game.paused = false;
           pauseGame = 0;
+          pauseGame2 = 0;
           localStorage.setItem('gameWasPaused', pauseGame);
+          localStorage.setItem('gameWasPaused2', pauseGame2);
       }
     }   
 };
@@ -961,7 +984,7 @@ function hitAsteroid(bullet, asteroid) {
         asteroid.kill();
 
         // random loot from asteroid
-        randomLoot = game.rnd.integerInRange(1,5);
+        randomLoot = 1;
 
         if (randomLoot == 1) {
             // shield energy
@@ -971,6 +994,11 @@ function hitAsteroid(bullet, asteroid) {
             lootEnergy.animations.add('shieldEnergy', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], 20, true);
             lootEnergy.play('shieldEnergy');
 
+            pauseGame2 = 0;
+            console.log(lootEnergy);
+            if (pauseGame2 == 0) {
+                gamePausedTuto2();
+            }
         }
 
     }
