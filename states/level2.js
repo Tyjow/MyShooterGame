@@ -425,6 +425,10 @@
                 timeSpawnMainEnnemies = 22000;
             }
 
+            if (pauseGame2 == 0) {
+                this.game.time.events.remove(removePause2);
+            }
+
         }
 
     };

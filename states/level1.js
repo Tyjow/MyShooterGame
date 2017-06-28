@@ -49,6 +49,7 @@
     var pauseGame;
     var pauseGame2;
     var removePause;
+    var removePause2;
     var timeFadeTextLevel = 4;
     var timeSpawnGreenEnnemies = 9000;
     var timeSpawnMainEnnemies = 24000;
@@ -93,7 +94,6 @@
 
 
             removePause = this.game.time.events.add(Phaser.Timer.SECOND * 3, gamePausedTuto, this);
-
 
             playerShootChainGun = this.game.add.audio('playerShootChainGun');
             playerShootChainGun.volume = 0.05;
@@ -502,6 +502,10 @@
                 timeSpawnMainEnnemies = 22000;
             }
 
+            if (pauseGame2 == 0) {
+                this.game.time.events.remove(removePause2);
+            }
+
         }
 
     };
@@ -541,8 +545,8 @@ function gamePausedTuto2 () {
     textTuto.anchor.setTo(0.5, 0.5);
 
     var button = game.input.keyboard.addKey(Phaser.Keyboard.ESC);
-    button.onDown.add(unpause, self);
-    game.input.onDown.add(unpause, self);
+    button.onDown.add(unpause2, self);
+    game.input.onDown.add(unpause2, self);
 };
 
 function unpause (event){
@@ -570,8 +574,36 @@ function unpause (event){
           // Unpause the game
           game.paused = false;
           pauseGame = 0;
+          localStorage.setItem('gameWasPaused', pauseGame);         
+      }
+    }   
+};
+
+function unpause2 (event){
+
+    // Only act if paused
+    if(pauseGame2 == 1){
+
+        // Calculate the corners of the menu
+        var x1 = wPaused/2 - 270/2, x2 = wPaused/2 + 270/2,
+            y1 = hPaused/2 - 180/2, y2 = hPaused/2 + 180/2;
+
+        // Check if the click was inside the menu
+        if(event.x > x1 && event.x < x2 && event.y > y1 && event.y < y2 ){
+
+            // Get menu local coordinates for the click
+            var x = event.x - x1,
+                y = event.y - y1;
+
+        }
+        else {
+          // Remove the tuto
+          barTuto.destroy();
+          textTuto.destroy();
+
+          // Unpause the game
+          game.paused = false;
           pauseGame2 = 0;
-          localStorage.setItem('gameWasPaused', pauseGame);
           localStorage.setItem('gameWasPaused2', pauseGame2);
       }
     }   
@@ -994,18 +1026,15 @@ function hitAsteroid(bullet, asteroid) {
             lootEnergy.animations.add('shieldEnergy', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], 20, true);
             lootEnergy.play('shieldEnergy');
 
-
-            pauseGame2 = 0;
-
             livingShieldChild.length = 0;
             for (var i = 0; i < shieldEnergy.children.length; i++){
                 livingShieldChild.push(shieldEnergy.children[0]);
             }
             var first = livingShieldChild[0];
 
-            if (pauseGame2 == 0 && first.visible) {
-                console.log(first);
-                gamePausedTuto2();
+            if (first.visible) {
+                removePause2 = this.game.time.events.add(Phaser.Timer.SECOND * 1, gamePausedTuto2, this);
+                
             }
            
         }
