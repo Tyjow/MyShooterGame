@@ -1,5 +1,10 @@
     var level2 = function(game) {};
 
+    var midBoss;
+    var enemyMidBoss;
+    var ennemiesMidBossXp = 100;
+    var enemyMidBossDamageAmount = 20;
+
 
     level2.prototype = {
 
@@ -146,6 +151,23 @@
                 });
             });
 
+            // mid boss
+            midBoss = game.add.group();
+            midBoss.enableBody = true;
+            midBoss.physicsBodyType = Phaser.Physics.ARCADE;
+            midBoss.setAll('anchor.x', 0.5);
+            midBoss.setAll('anchor.y', 0.5);
+            midBoss.setAll('scale.x', 0.5);
+            midBoss.setAll('scale.y', 0.5);
+            midBoss.setAll('outOfBoundsKill', true);
+            midBoss.setAll('checkWorldBounds', true);
+
+            midBossSprite = this.add.sprite(this.game.width,this.game.height/2, 'midBoss');
+
+            enemyMidBoss = midBoss.add(midBossSprite);
+            enemyMidBoss.health = 100;
+               
+
             playerBullets = game.add.group();
             playerBullets.enableBody = true;
             playerBullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -170,6 +192,7 @@
             //Temps de spawn enemies
             this.game.time.events.add(7000, launchGreenEnemy);
             this.game.time.events.add(22000, launchEnnemiesMain);
+            this.game.time.events.add(5000, launchMidBoss);
 
             // Temps de spawn asteroids
             this.game.time.events.add(9000, launchLittleAsteroid);
@@ -236,6 +259,17 @@
                 playerLevelUpAnim.animations.add('playerLevelUpAnim');
             });
 
+            //  Animation heal player
+            playerLevelUpAnimShield = game.add.group();
+            playerLevelUpAnimShield.enableBody = true;
+            playerLevelUpAnimShield.physicsBodyType = Phaser.Physics.ARCADE;
+            playerLevelUpAnimShield.createMultiple(30, 'playerLevelUpAnimShield');
+            playerLevelUpAnimShield.setAll('anchor.x', 0.5);
+            playerLevelUpAnimShield.setAll('anchor.y', 0.5);
+            playerLevelUpAnimShield.forEach( function(playerLevelUpAnimShield) {
+                playerLevelUpAnimShield.animations.add('playerLevelUpAnimShield');
+            });
+
             //  Shields stat
             shields = this.game.add.bitmapText(10, 10, 'spacefont', 'Shield: ' + this.player.health +'%', 40);
 
@@ -267,6 +301,8 @@
             this.game.physics.arcade.overlap(playerBullets, greenEnemies, hitEnemy, null, this);
             this.game.physics.arcade.overlap(this.player, ennemiesMain, shipCollideEnemiesMain, null, this);
             this.game.physics.arcade.overlap(playerBullets, ennemiesMain, hitEnemyMain, null, this);
+            this.game.physics.arcade.overlap(this.player, midBoss, shipCollideMidBoss, null, this);
+            this.game.physics.arcade.overlap(playerBullets, midBoss, hitMidBoss, null, this);
             this.game.physics.arcade.overlap(this.player, littleAsteroid, shipCollideAsteroid, null, this);
             this.game.physics.arcade.overlap(this.player, shieldEnergy, shipCollideShieldEnergy, null, this);
             this.game.physics.arcade.overlap(playerBullets, littleAsteroid, hitAsteroid, null, this);
@@ -396,8 +432,8 @@
             }
 
 
-            // score condition end level 1
-            smoothStopScroll();
+            // score condition end level 2
+            smoothStopScrollLevel2();
 
             // stop launch ennemies before level cleared
             if (levelSpeedOne >= -59 && levelSpeedTwo >= -99) {
@@ -432,6 +468,97 @@
         }
 
     };
+
+    function launchMidBoss() {
+    var MAX_ENEMY_SPACING = 1000;
+    var ENEMY_SPEED = -120;
+    
+    if (enemyMidBoss) {
+        
+        enemyMidBoss.body.velocity.x = ENEMY_SPEED;
+        enemyMidBoss.body.drag.y = 50;
+        enemyMidBoss.scale.set(1);
+        enemyMidBoss.alpha = 1;
+
+        enemyMidBoss.update = function(){
+            enemyMidBoss.angle = -90 - game.math.radToDeg(Math.atan2(enemyMidBoss.body.velocity.x, enemyMidBoss.body.velocity.y));
+
+
+            
+            // Kill enemies once they go off screen
+            if (enemyMidBoss.x > this.game.width) {
+                enemyMidBoss.kill();
+            }
+        }
+    }
+
+    // Send another enemy soon
+    midBossLaunchTimer = game.time.events.add(MAX_ENEMY_SPACING, launchMidBoss);
+};
+
+function shipCollideMidBoss(player, enemy) {
+    var explosion = explosions.getFirstExists(false);
+    explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
+    explosion.body.velocity.y = enemy.body.velocity.y;
+    explosion.alpha = 0.7;
+    explosion.play('explosion', 30, false, true);
+    explosionSound.play();
+    enemy.kill();
+
+    // flash effect on hit
+    tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5, tint: 0xf1f1f1 }, 50, "Linear", true, 0, 6);
+    tweenPlayer.yoyo(true, 0);
+    tweenPlayer.onComplete.add(function() {  
+        tweenPlayer.stop();
+        player.alpha = 1;
+        player.tint = 0xffffff;
+    });
+
+    player.kill();
+    shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
+
+    
+};
+
+function hitMidBoss(bullet, enemy) {
+
+    enemy.health-=bullet.health;
+    bullet.kill();
+    tweenEnnemies = this.game.add.tween(enemy).to( { alpha: 0.5, tint: 0xf1f1f1 }, 20, "Linear", true, 0, 6);
+    tweenEnnemies.yoyo(true, 0);
+    tweenEnnemies.onComplete.add(function() {
+        tweenEnnemies.stop();
+        enemy.alpha = 1;
+        enemy.tint = 0xffffff;
+    });
+
+    console.log(enemy.health);
+
+    if (enemy.health <= 0) {
+        var explosion = explosions.getFirstExists(false);
+        explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
+        explosion.body.velocity.y = enemy.body.velocity.y;
+        explosion.alpha = 0.7;
+        explosion.play('explosion', 30, false, true);
+        explosionSound.play();
+
+        enemy.kill();
+
+        // text xp above ennemies 
+        removeTextXp = this.game.add.text(enemy.x, enemy.y, 'exp: +' + ennemiesMidBossXp, { font: '12px Arial', fill: '#4dffa6' });  
+        removeTextXp.stroke = "#000";
+        removeTextXp.strokeThickness = 2;
+        this.game.add.tween(removeTextXp).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+
+        // add Exp
+        this.player.exp += ennemiesMidBossXp;
+        experience.text = 'Exp: ' + this.player.exp;
+
+        // Increase score
+        score += enemyMidBossDamageAmount * 10;
+        scoreText.text = 'Score: ' + score;
+    }
+};
 
     function smoothStopScrollLevel2(){
     if (score >= 40000) {

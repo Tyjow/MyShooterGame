@@ -1,6 +1,7 @@
     var level1 = function(game) {};
 
     var greenEnemies;
+    var ennemiesMain;
     var greenEnemiesXp = 10;
     var ennemiesMainXp = 20;
     var explosions;

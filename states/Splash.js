@@ -53,6 +53,7 @@ Splash.prototype = {
 
     game.load.spritesheet('enemy', 'assets/sprites/enemies/enemies-sat1.png', 94, 101);
     game.load.spritesheet('enemyMain', 'assets/sprites/enemies/enemies-main1.png', 276, 215);
+    game.load.spritesheet('midBoss', 'assets/sprites/enemies/mid-boss.png', 264, 166);
 
     game.load.spritesheet('explosionTrail', 'assets/sprites/explode.png', 128, 128);
     game.load.spritesheet('explosion', 'assets/sprites/explode-anim2.png', 256, 256);
