@@ -60,6 +60,7 @@
     var randomLoot;
     var fingerTuto;
     var first;
+    var fireRatePlayer;
 
 
     level1.prototype = {
@@ -302,7 +303,7 @@
                 asteroid.health = 2;
                 asteroid.alpha = 1;
                 greenDamageAmount = damageAmountEnemies;
-                asteroid.animations.add('littleAsteroidFly', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26], 5, true);
+                asteroid.animations.add('littleAsteroidFly', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26], 10, true);
                 asteroid.animations.play('littleAsteroidFly');
             });
 
@@ -379,6 +380,7 @@
                 littleAsteroidLaunchTimer = game.time.events.stop();
                 playerBullets.removeAll(true);
                 shieldEnergy.removeAll(true);
+                littleAsteroid.removeAll(true);
                 function setResetHandlers() {
                     //  The "click to restart" handler
                     tapRestart = this.game.input.onTap.addOnce(_restart,this);
@@ -643,7 +645,7 @@ function fireBullet(player) {
     //  Grab the first bullet we can from the pool
     var bullet = playerBullets.getFirstExists(false);
     var bulletSpeed = 600;
-    var fireRate = 100;
+    fireRatePlayer = 100;
 
     if (game.time.now >= nextFire) {
         if (bullet)
@@ -661,7 +663,7 @@ function fireBullet(player) {
                 }
 
             }
-        nextFire = game.time.now + fireRate;
+        nextFire = game.time.now + fireRatePlayer;
     }
 };
 
@@ -1115,7 +1117,7 @@ function smoothStopScroll(){
             if (nextIncrement == 0) {
                 nextIncrement = game.time.now;
             }
-            levelSpeedOne = levelSpeedTwo + 6;
+            levelSpeedOne = levelSpeedOne + 6;
             levelSpeedTwo = levelSpeedTwo + 10;
             nextIncrement+=1000;
             levelSpeedOne = Math.min(levelSpeedOne,0);
@@ -1138,6 +1140,7 @@ function levelCleared() {
         fadeInEndLevel.start();
         playerBullets.removeAll(true);
         shieldEnergy.removeAll(true);
+        littleAsteroid.removeAll(true);
         function setResetHandlersLevel() {
             //  The "click to restart" handler
             tapRestart = game.input.onTap.addOnce(_restart,this);

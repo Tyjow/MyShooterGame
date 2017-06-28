@@ -4,6 +4,7 @@
     var enemyMidBoss;
     var ennemiesMidBossXp = 100;
     var enemyMidBossDamageAmount = 20;
+    var livingEnemiesMidBoss = [];
 
 
     level2.prototype = {
@@ -162,10 +163,14 @@
             midBoss.setAll('outOfBoundsKill', true);
             midBoss.setAll('checkWorldBounds', true);
 
-            midBossSprite = this.add.sprite(this.game.width,this.game.height/2, 'midBoss');
+            midBossSprite = this.add.sprite(this.game.width,this.game.height/2.5, 'midBoss');
 
             enemyMidBoss = midBoss.add(midBossSprite);
-            enemyMidBoss.health = 100;
+            enemyMidBoss.health = 50;
+            enemyMidBoss.nextFireChild = 0;
+            enemyMidBoss.nextFireChild2 = 0;
+            enemyMidBoss.nextFireChild3 = 0;
+            enemyMidBoss.alive = false;
                
 
             playerBullets = game.add.group();
@@ -192,7 +197,10 @@
             //Temps de spawn enemies
             this.game.time.events.add(7000, launchGreenEnemy);
             this.game.time.events.add(22000, launchEnnemiesMain);
-            this.game.time.events.add(5000, launchMidBoss);
+
+            if (score >= 35000) {
+                this.game.time.events.add(1000, launchMidBoss);
+            }
 
             // Temps de spawn asteroids
             this.game.time.events.add(9000, launchLittleAsteroid);
@@ -307,6 +315,7 @@
             this.game.physics.arcade.overlap(this.player, shieldEnergy, shipCollideShieldEnergy, null, this);
             this.game.physics.arcade.overlap(playerBullets, littleAsteroid, hitAsteroid, null, this);
             this.game.physics.arcade.overlap(enemyBullets, this.player, enemyHitsPlayer, null, this);
+            this.game.physics.arcade.overlap(enemyBullets, this.player, enemyMidBossHitsPlayer, null, this);
             this.game.physics.arcade.overlap(playerBullets, enemyBullets, hitEnemyBullet, null, this);
 
 
@@ -323,6 +332,8 @@
                 littleAsteroidLaunchTimer = game.time.events.stop();
                 playerBullets.removeAll(true);
                 shieldEnergy.removeAll(true);
+                littleAsteroid.removeAll(true);
+                midBoss.removeAll(true);
                 function setResetHandlers() {
                     //  The "click to restart" handler
                     tapRestart = this.game.input.onTap.addOnce(_restart,this);
@@ -332,6 +343,7 @@
                       spaceRestart.detach();
                       // restart();
                       mainSound.stop();
+                      music.play();
                       this.game.state.start("GameMenu");
                       score = 0;
                       levelSpeedOne = -60;
@@ -454,6 +466,12 @@
             // enemiesFire();
             enemiesFireMain();
 
+            if (enemyMidBoss.alive == true && enemyMidBoss.body.velocity.x == 0) {
+                enemiesFireMidBoss();
+                enemiesFireMidBoss2();
+                enemiesFireMidBoss3();
+            }
+
             if (pauseGame == 0) {
                 this.game.time.events.remove(removePause);
                 timeFadeTextLevel = 2;
@@ -470,7 +488,8 @@
     };
 
     function launchMidBoss() {
-    var MAX_ENEMY_SPACING = 1000;
+
+    enemyMidBoss.alive = true;
     var ENEMY_SPEED = -120;
     
     if (enemyMidBoss) {
@@ -489,11 +508,13 @@
             if (enemyMidBoss.x > this.game.width) {
                 enemyMidBoss.kill();
             }
+
+            if (enemyMidBoss.x <= this.game.width/1.4) {
+                enemyMidBoss.body.velocity.x = 0;
+                enemyMidBoss.angle = 0;
+            }
         }
     }
-
-    // Send another enemy soon
-    midBossLaunchTimer = game.time.events.add(MAX_ENEMY_SPACING, launchMidBoss);
 };
 
 function shipCollideMidBoss(player, enemy) {
@@ -555,9 +576,87 @@ function hitMidBoss(bullet, enemy) {
         experience.text = 'Exp: ' + this.player.exp;
 
         // Increase score
-        score += enemyMidBossDamageAmount * 10;
+        score += enemyMidBossDamageAmount * 50;
         scoreText.text = 'Score: ' + score;
     }
+};
+
+function enemyMidBossHitsPlayer (player, bullet) {
+    var explosion = explosions.getFirstExists(false);
+    explosion.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
+    explosion.alpha = 0.7;
+    explosion.play('explosion', 30, false, true);
+    explosionSound.play();
+    bullet.kill();
+
+    // flash effect on hit
+    tweenPlayer = this.game.add.tween(player).to( { alpha: 0.5, tint: 0xf1f1f1 }, 50, "Linear", true, 0, 6);
+    tweenPlayer.yoyo(true, 0);
+    tweenPlayer.onComplete.add(function() {  
+        tweenPlayer.stop();
+        player.alpha = 1;
+        player.tint = 0xffffff;
+    });
+
+    player.damage(enemyMidBossDamageAmount);
+    shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
+};
+
+function enemiesFireMidBoss () {
+    // bullet speed ennemies
+    var bulletSpeed = -400;
+    var fireRate = 800;
+
+    if(game.time.now >= nextFireEnemy) { 
+        var bullet = enemyBullets.getFirstExists(false);
+        var shooter = enemyMidBoss;
+        if (game.time.now >= shooter.nextFireChild) {
+
+            bullet.reset(shooter.body.x - 10, shooter.body.y + 25);
+            bullet.scale.set(-0.3);
+            bullet.body.velocity.x = bulletSpeed;
+            shooter.nextFireChild = game.time.now + fireRate;
+        }
+    }
+
+};
+
+function enemiesFireMidBoss2 () {
+    // bullet speed ennemies
+    var bulletSpeed = -400;
+    var fireRate = 800;
+
+    if(game.time.now >= nextFireEnemy) { 
+        var bullet = enemyBullets.getFirstExists(false);
+        var shooter = enemyMidBoss;
+        if (game.time.now >= shooter.nextFireChild2) {
+
+            bullet.reset(shooter.body.x - 10, shooter.body.y + 75);
+            bullet.scale.set(-0.3);
+            bullet.body.velocity.x = bulletSpeed;
+            shooter.nextFireChild2 = game.time.now + fireRate;
+        }
+    }
+
+};
+
+function enemiesFireMidBoss3 () {
+    // bullet speed ennemies
+    var bulletSpeed = -400;
+    var fireRate = 800;
+
+    if(game.time.now >= nextFireEnemy) { 
+        var bullet = enemyBullets.getFirstExists(false);
+        var shooter = enemyMidBoss;
+        if (game.time.now >= shooter.nextFireChild3) {
+
+            bullet.reset(shooter.body.x - 10, shooter.body.y + 125);
+            bullet.scale.set(-0.3);
+            bullet.body.velocity.x = bulletSpeed;
+            shooter.nextFireChild3 = game.time.now + fireRate;
+        }
+    }
+
 };
 
     function smoothStopScrollLevel2(){
