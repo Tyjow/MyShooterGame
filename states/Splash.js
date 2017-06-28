@@ -55,7 +55,7 @@ Splash.prototype = {
     game.load.spritesheet('enemyMain', 'assets/sprites/enemies/enemies-main1.png', 276, 215);
 
     game.load.spritesheet('explosionTrail', 'assets/sprites/explode.png', 128, 128);
-    game.load.spritesheet('explosion', 'assets/sprites/explode-anim.png', 300, 292);
+    game.load.spritesheet('explosion', 'assets/sprites/explode-anim2.png', 256, 256);
     game.load.spritesheet('electricDamaged', 'assets/sprites/player/electric-damaged.png', 512, 512);
 
     game.load.bitmapFont('spacefont', 'assets/fonts/tyjowfont.png', 'assets/fonts/tyjowfont.xml');

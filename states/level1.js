@@ -27,7 +27,7 @@
     var tweenPlayer;
     var tweenEnnemies;
     var tweenAsteroid;
-    var levelSpeedOne = -40;
+    var levelSpeedOne = -60;
     var levelSpeedTwo = -100;
     var nextIncrement = 0;
     var nextFire = 0;
@@ -389,7 +389,7 @@
                       mainSound.stop();
                       this.game.state.start("GameMenu");
                       score = 0;
-                      levelSpeedOne = -40;
+                      levelSpeedOne = -60;
                       levelSpeedTwo = -100;
                       nextIncrement = 0;
                       livingEnemies = [];
@@ -491,7 +491,7 @@
             smoothStopScroll();
 
             // stop launch ennemies before level cleared
-            if (levelSpeedOne >= -39 && levelSpeedTwo >= -99) {
+            if (levelSpeedOne >= -59 && levelSpeedTwo >= -99) {
                 greenEnemyLaunchTimer = game.time.events.stop();
                 ennemiesMainLaunchTimer = game.time.events.stop();
                 littleAsteroidLaunchTimer = game.time.events.stop();
@@ -1114,7 +1114,7 @@ function smoothStopScroll(){
             if (nextIncrement == 0) {
                 nextIncrement = game.time.now;
             }
-            levelSpeedOne = levelSpeedTwo + 4;
+            levelSpeedOne = levelSpeedTwo + 6;
             levelSpeedTwo = levelSpeedTwo + 10;
             nextIncrement+=1000;
             levelSpeedOne = Math.min(levelSpeedOne,0);
