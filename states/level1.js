@@ -33,6 +33,7 @@
     var nextFire = 0;
     var removeTextLevelUp;
     var playerLevelUpAnim;
+    var playerLevelUpAnimShield;
     var enemyHealth;
     var playerShootChainGun;
     var playerShootChainGunUpgrade;
@@ -56,6 +57,8 @@
     var littleAsteroid;
     var shieldEnergy;
     var randomLoot;
+    var fingerTuto;
+    var first;
 
 
     level1.prototype = {
@@ -313,6 +316,17 @@
                 playerLevelUpAnim.animations.add('playerLevelUpAnim');
             });
 
+            //  Animation heal player
+            playerLevelUpAnimShield = game.add.group();
+            playerLevelUpAnimShield.enableBody = true;
+            playerLevelUpAnimShield.physicsBodyType = Phaser.Physics.ARCADE;
+            playerLevelUpAnimShield.createMultiple(30, 'playerLevelUpAnimShield');
+            playerLevelUpAnimShield.setAll('anchor.x', 0.5);
+            playerLevelUpAnimShield.setAll('anchor.y', 0.5);
+            playerLevelUpAnimShield.forEach( function(playerLevelUpAnimShield) {
+                playerLevelUpAnimShield.animations.add('playerLevelUpAnimShield');
+            });
+
             //  Shields stat
             shields = this.game.add.bitmapText(10, 10, 'spacefont', 'Shield: ' + this.player.health +'%', 40);
 
@@ -544,6 +558,10 @@ function gamePausedTuto2 () {
     textTuto.setShadow(5, 5, 'rgba(0,0,0,0.3)', 5);
     textTuto.anchor.setTo(0.5, 0.5);
 
+    fingerTuto = this.add.sprite(first.x - 30, first.y + 25, 'fingerTuto');
+    fingerTuto.scale.x = 0.15;
+    fingerTuto.scale.y = 0.15;
+
     var button = game.input.keyboard.addKey(Phaser.Keyboard.ESC);
     button.onDown.add(unpause2, self);
     game.input.onDown.add(unpause2, self);
@@ -600,6 +618,7 @@ function unpause2 (event){
           // Remove the tuto
           barTuto.destroy();
           textTuto.destroy();
+          fingerTuto.kill();
 
           // Unpause the game
           game.paused = false;
@@ -913,6 +932,12 @@ function shipCollideAsteroid(player, asteroid) {
 };
 
 function shipCollideShieldEnergy(player, shieldEnergy) {
+    var animShieldRestored = playerLevelUpAnimShield.getFirstExists(false);
+    animShieldRestored.reset(player.body.x + player.body.halfWidth, player.body.y + player.body.halfHeight);
+    animShieldRestored.body.velocity.y = player.body.velocity.y;
+    animShieldRestored.alpha = 0.7;
+    animShieldRestored.play('playerLevelUpAnimShield', 30, false, true);
+    trailAnim = animShieldRestored;
 
     shieldEnergy.kill();
     if (player.health <= 99) {
@@ -922,6 +947,13 @@ function shipCollideShieldEnergy(player, shieldEnergy) {
         player.health = 100;
     }
     shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
+
+    animShieldRestored.update = function(){
+
+        trailAnim.x = player.x + 35;
+        trailAnim.y = player.y - 10;
+   }
+
     
 };
 
@@ -1016,7 +1048,7 @@ function hitAsteroid(bullet, asteroid) {
         asteroid.kill();
 
         // random loot from asteroid
-        randomLoot = 1;
+        randomLoot = game.rnd.integerInRange(1,5);
 
         if (randomLoot == 1) {
             // shield energy
@@ -1025,16 +1057,16 @@ function hitAsteroid(bullet, asteroid) {
             lootEnergy.scale.set(1);
             lootEnergy.animations.add('shieldEnergy', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], 20, true);
             lootEnergy.play('shieldEnergy');
+            lootEnergy.body.velocity.x = -75;
 
             livingShieldChild.length = 0;
             for (var i = 0; i < shieldEnergy.children.length; i++){
                 livingShieldChild.push(shieldEnergy.children[0]);
             }
-            var first = livingShieldChild[0];
+            first = livingShieldChild[0];
 
             if (first.visible) {
-                removePause2 = this.game.time.events.add(Phaser.Timer.SECOND * 1, gamePausedTuto2, this);
-                
+                removePause2 = this.game.time.events.add(Phaser.Timer.SECOND * 1.3, gamePausedTuto2, this);          
             }
            
         }

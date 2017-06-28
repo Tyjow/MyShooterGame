@@ -39,6 +39,8 @@ Splash.prototype = {
     game.load.image('midground', 'assets/sprites/level1/spacescape.png');
     game.load.image('background', 'assets/sprites/level1/space4.jpg');
 
+    game.load.image('fingerTuto', 'assets/sprites/finger.png');
+
     game.load.image('playerBullets', 'assets/sprites/bullet01.png');
     game.load.image('enemyBullets', 'assets/sprites/bullet01.png');
 
@@ -47,6 +49,7 @@ Splash.prototype = {
 
     game.load.spritesheet('player', 'assets/sprites/player/player-ship.png', 178, 165);
     game.load.spritesheet('playerLevelUpAnim', 'assets/sprites/player/levelup-anim.png', 128, 128);
+    game.load.spritesheet('playerLevelUpAnimShield', 'assets/sprites/player/healshield-anim.png', 128, 128);
 
     game.load.spritesheet('enemy', 'assets/sprites/enemies/enemies-sat1.png', 94, 101);
     game.load.spritesheet('enemyMain', 'assets/sprites/enemies/enemies-main1.png', 276, 215);
