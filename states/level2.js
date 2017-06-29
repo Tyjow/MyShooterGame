@@ -166,7 +166,7 @@
             midBossSprite = this.add.sprite(this.game.width,this.game.height/2.5, 'midBoss');
 
             enemyMidBoss = midBoss.add(midBossSprite);
-            enemyMidBoss.health = 80;
+            enemyMidBoss.health = 50;
             enemyMidBoss.nextFireChild = 0;
             enemyMidBoss.nextFireChild2 = 0;
             enemyMidBoss.nextFireChild3 = 0;
@@ -484,7 +484,7 @@
             }
 
 
-            if (score >= 35000) {
+            if (score >= 30000) {
                 ENEMY_SPEED_MIDBOSS = -120;
                 enemyMidBoss.body.velocity.x = ENEMY_SPEED_MIDBOSS;
                 enemyMidBoss.body.drag.y = 50;
