@@ -5,7 +5,7 @@
     var ennemiesMidBossXp = 100;
     var enemyMidBossDamageAmount = 20;
     var livingEnemiesMidBoss = [];
-
+    var ENEMY_SPEED_MIDBOSS = 0;
 
     level2.prototype = {
 
@@ -166,7 +166,7 @@
             midBossSprite = this.add.sprite(this.game.width,this.game.height/2.5, 'midBoss');
 
             enemyMidBoss = midBoss.add(midBossSprite);
-            enemyMidBoss.health = 50;
+            enemyMidBoss.health = 80;
             enemyMidBoss.nextFireChild = 0;
             enemyMidBoss.nextFireChild2 = 0;
             enemyMidBoss.nextFireChild3 = 0;
@@ -198,9 +198,9 @@
             this.game.time.events.add(7000, launchGreenEnemy);
             this.game.time.events.add(22000, launchEnnemiesMain);
 
-            if (score >= 35000) {
-                this.game.time.events.add(1000, launchMidBoss);
-            }
+ 
+            this.game.time.events.add(1000, launchMidBoss);
+            
 
             // Temps de spawn asteroids
             this.game.time.events.add(9000, launchLittleAsteroid);
@@ -483,37 +483,36 @@
                 this.game.time.events.remove(removePause2);
             }
 
+
+            if (score >= 35000) {
+                ENEMY_SPEED_MIDBOSS = -120;
+                enemyMidBoss.body.velocity.x = ENEMY_SPEED_MIDBOSS;
+                enemyMidBoss.body.drag.y = 50;
+                enemyMidBoss.angle = -90 - game.math.radToDeg(Math.atan2(enemyMidBoss.body.velocity.x, enemyMidBoss.body.velocity.y));
+            
+                // Kill mid boss once he go off screen
+                if (enemyMidBoss.x > this.game.width) {
+                    enemyMidBoss.kill();
+                }
+
+                if (enemyMidBoss.x <= this.game.width/1.4) {
+                    enemyMidBoss.body.velocity.x = 0;
+                    enemyMidBoss.angle = 0;
+                }
+            }
+
         }
 
     };
 
-    function launchMidBoss() {
+function launchMidBoss() {
 
     enemyMidBoss.alive = true;
-    var ENEMY_SPEED = -120;
     
     if (enemyMidBoss) {
         
-        enemyMidBoss.body.velocity.x = ENEMY_SPEED;
-        enemyMidBoss.body.drag.y = 50;
         enemyMidBoss.scale.set(1);
         enemyMidBoss.alpha = 1;
-
-        enemyMidBoss.update = function(){
-            enemyMidBoss.angle = -90 - game.math.radToDeg(Math.atan2(enemyMidBoss.body.velocity.x, enemyMidBoss.body.velocity.y));
-
-
-            
-            // Kill enemies once they go off screen
-            if (enemyMidBoss.x > this.game.width) {
-                enemyMidBoss.kill();
-            }
-
-            if (enemyMidBoss.x <= this.game.width/1.4) {
-                enemyMidBoss.body.velocity.x = 0;
-                enemyMidBoss.angle = 0;
-            }
-        }
     }
 };
 
@@ -603,25 +602,29 @@ function enemyMidBossHitsPlayer (player, bullet) {
 };
 
 function enemiesFireMidBoss () {
-    // bullet speed ennemies
-    var bulletSpeed = -400;
-    var fireRate = 800;
+    if (!ENEMY_SPEED_MIDBOSS == 0) {
+        // bullet speed ennemies
+        var bulletSpeed = -400;
+        var fireRate = 800;
 
-    if(game.time.now >= nextFireEnemy) { 
-        var bullet = enemyBullets.getFirstExists(false);
-        var shooter = enemyMidBoss;
-        if (game.time.now >= shooter.nextFireChild) {
+        if(game.time.now >= nextFireEnemy) { 
+            var bullet = enemyBullets.getFirstExists(false);
+            var shooter = enemyMidBoss;
+            if (game.time.now >= shooter.nextFireChild) {
 
-            bullet.reset(shooter.body.x - 10, shooter.body.y + 25);
-            bullet.scale.set(-0.3);
-            bullet.body.velocity.x = bulletSpeed;
-            shooter.nextFireChild = game.time.now + fireRate;
+                bullet.reset(shooter.body.x - 10, shooter.body.y + 25);
+                bullet.scale.set(-0.3);
+                bullet.body.velocity.x = bulletSpeed;
+                shooter.nextFireChild = game.time.now + fireRate;
+            }
         }
+
     }
 
 };
 
 function enemiesFireMidBoss2 () {
+    if (!ENEMY_SPEED_MIDBOSS == 0) {
     // bullet speed ennemies
     var bulletSpeed = -400;
     var fireRate = 800;
@@ -637,10 +640,12 @@ function enemiesFireMidBoss2 () {
             shooter.nextFireChild2 = game.time.now + fireRate;
         }
     }
+   }
 
 };
 
 function enemiesFireMidBoss3 () {
+    if (!ENEMY_SPEED_MIDBOSS == 0) {
     // bullet speed ennemies
     var bulletSpeed = -400;
     var fireRate = 800;
@@ -656,6 +661,7 @@ function enemiesFireMidBoss3 () {
             shooter.nextFireChild3 = game.time.now + fireRate;
         }
     }
+   }
 
 };
 
