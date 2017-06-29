@@ -1,6 +1,7 @@
     var level2 = function(game) {};
 
     var midBoss;
+    var midBossSprite;
     var enemyMidBoss;
     var ennemiesMidBossXp = 100;
     var enemyMidBossDamageAmount = 20;
@@ -162,15 +163,6 @@
             midBoss.setAll('scale.y', 0.5);
             midBoss.setAll('outOfBoundsKill', true);
             midBoss.setAll('checkWorldBounds', true);
-
-            midBossSprite = this.add.sprite(this.game.width,this.game.height/2.5, 'midBoss');
-
-            enemyMidBoss = midBoss.add(midBossSprite);
-            enemyMidBoss.health = 50;
-            enemyMidBoss.nextFireChild = 0;
-            enemyMidBoss.nextFireChild2 = 0;
-            enemyMidBoss.nextFireChild3 = 0;
-            enemyMidBoss.alive = false;
                
 
             playerBullets = game.add.group();
@@ -466,12 +458,6 @@
             // enemiesFire();
             enemiesFireMain();
 
-            if (enemyMidBoss.alive == true && enemyMidBoss.body.velocity.x == 0) {
-                enemiesFireMidBoss();
-                enemiesFireMidBoss2();
-                enemiesFireMidBoss3();
-            }
-
             if (pauseGame == 0) {
                 this.game.time.events.remove(removePause);
                 timeFadeTextLevel = 2;
@@ -484,6 +470,26 @@
             }
 
 
+            
+
+        }
+
+    };
+
+function launchMidBoss() {
+    midBossSprite = game.add.sprite(this.game.width,this.game.height/2.5, 'midBoss');
+    enemyMidBoss = midBoss.add(midBossSprite);
+    enemyMidBoss.health = 50;
+    enemyMidBoss.nextFireChild = 0;
+    enemyMidBoss.nextFireChild2 = 0;
+    enemyMidBoss.nextFireChild3 = 0;
+    
+    if (enemyMidBoss) {
+        
+        enemyMidBoss.scale.set(1);
+        enemyMidBoss.alpha = 1;
+
+        enemyMidBoss.update = function() {
             if (score >= 30000) {
                 ENEMY_SPEED_MIDBOSS = -120;
                 enemyMidBoss.body.velocity.x = ENEMY_SPEED_MIDBOSS;
@@ -501,18 +507,12 @@
                 }
             }
 
+            if (enemyMidBoss.visible == true && enemyMidBoss.body.velocity.x == 0) {
+                enemiesFireMidBoss();
+                enemiesFireMidBoss2();
+                enemiesFireMidBoss3();
+            }
         }
-
-    };
-
-function launchMidBoss() {
-
-    enemyMidBoss.alive = true;
-    
-    if (enemyMidBoss) {
-        
-        enemyMidBoss.scale.set(1);
-        enemyMidBoss.alpha = 1;
     }
 };
 
@@ -612,7 +612,7 @@ function enemiesFireMidBoss () {
             var shooter = enemyMidBoss;
             if (game.time.now >= shooter.nextFireChild) {
 
-                bullet.reset(shooter.body.x - 10, shooter.body.y + 25);
+                bullet.reset(shooter.x - 10, shooter.y + 25);
                 bullet.scale.set(-0.3);
                 bullet.body.velocity.x = bulletSpeed;
                 shooter.nextFireChild = game.time.now + fireRate;
@@ -634,7 +634,7 @@ function enemiesFireMidBoss2 () {
         var shooter = enemyMidBoss;
         if (game.time.now >= shooter.nextFireChild2) {
 
-            bullet.reset(shooter.body.x - 10, shooter.body.y + 75);
+            bullet.reset(shooter.x - 10, shooter.y + 75);
             bullet.scale.set(-0.3);
             bullet.body.velocity.x = bulletSpeed;
             shooter.nextFireChild2 = game.time.now + fireRate;
@@ -655,7 +655,7 @@ function enemiesFireMidBoss3 () {
         var shooter = enemyMidBoss;
         if (game.time.now >= shooter.nextFireChild3) {
 
-            bullet.reset(shooter.body.x - 10, shooter.body.y + 125);
+            bullet.reset(shooter.x - 10, shooter.y + 125);
             bullet.scale.set(-0.3);
             bullet.body.velocity.x = bulletSpeed;
             shooter.nextFireChild3 = game.time.now + fireRate;
