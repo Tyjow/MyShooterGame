@@ -32,6 +32,7 @@
 
             levelSpeedOne = -60;
             levelSpeedTwo = -100;
+            nextIncrement = 0;
 
             playerShootChainGun = this.game.add.audio('playerShootChainGun');
             playerShootChainGun.volume = 0.05;
@@ -448,7 +449,7 @@
 
             // remove all element on screen and add msg Level Complete
             if (levelSpeedOne >= 0 && levelSpeedTwo >= 0) {
-                levelCleared();
+                level2Cleared();
             }
 
             // update new value for autoscroll "function smoothStopScroll()"
@@ -477,20 +478,25 @@
     };
 
 function launchMidBoss() {
-    midBossSprite = game.add.sprite(this.game.width,this.game.height/2.5, 'midBoss');
-    enemyMidBoss = midBoss.add(midBossSprite);
-    enemyMidBoss.health = 50;
-    enemyMidBoss.nextFireChild = 0;
-    enemyMidBoss.nextFireChild2 = 0;
-    enemyMidBoss.nextFireChild3 = 0;
-    
+
+    midBoss.create(this.game.width,this.game.height/2.5, 'midBoss');
+    enemyMidBoss = midBoss.children[0];
+
     if (enemyMidBoss) {
+
+        enemyMidBoss.alive = false;
+        enemyMidBoss.health = 50;
+        enemyMidBoss.nextFireChild = 0;
+        enemyMidBoss.nextFireChild2 = 0;
+        enemyMidBoss.nextFireChild3 = 0;
         
-        enemyMidBoss.scale.set(1);
+
         enemyMidBoss.alpha = 1;
 
         enemyMidBoss.update = function() {
             if (score >= 30000) {
+
+                enemyMidBoss.alive = true;
                 ENEMY_SPEED_MIDBOSS = -120;
                 enemyMidBoss.body.velocity.x = ENEMY_SPEED_MIDBOSS;
                 enemyMidBoss.body.drag.y = 50;
@@ -542,6 +548,7 @@ function shipCollideMidBoss(player, enemy) {
 
 function hitMidBoss(bullet, enemy) {
 
+    if (enemy.alive == false) { return; }
     enemy.health-=bullet.health;
     bullet.kill();
     tweenEnnemies = this.game.add.tween(enemy).to( { alpha: 0.5, tint: 0xf1f1f1 }, 20, "Linear", true, 0, 6);
@@ -678,5 +685,38 @@ function enemiesFireMidBoss3 () {
             levelSpeedTwo = Math.min(levelSpeedTwo,0);
         }
     }
+};
+
+function level2Cleared() {
+    greenEnemies.removeAll(true);
+    ennemiesMain.removeAll(true);
+    enemyBullets.removeAll(true);
+
+    if ( endLevelOne.visible == false) {
+        endLevelOne.visible = true;
+        endLevelOne.alpha = 0;
+        var fadeInEndLevel = game.add.tween(endLevelOne);
+        fadeInEndLevel.to({alpha: 1}, 1000, Phaser.Easing.Quintic.Out);
+        fadeInEndLevel.onComplete.add(setResetHandlersLevel);
+        fadeInEndLevel.start();
+        playerBullets.removeAll(true);
+        shieldEnergy.removeAll(true);
+        littleAsteroid.removeAll(true);
+        function setResetHandlersLevel() {
+            //  The "click to restart" handler
+            tapRestart = game.input.onTap.addOnce(_restart,this);
+            spaceRestart = fireButton.onDown.addOnce(_restart,this);
+            function _restart() {
+              tapRestart.detach();
+              spaceRestart.detach();
+              // restart();
+              game.state.start("GameMenu");
+              greenEnemyLaunchTimer = game.time.events.start();
+              ennemiesMainLaunchTimer = game.time.events.start();
+              littleAsteroidLaunchTimer = game.time.events.start();
+            }
+        }
+    }
+    
 };
 
