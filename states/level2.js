@@ -419,12 +419,25 @@
 
             localStorage.setItem('currentExp', this.player.exp);
 
+            if (this.player.level >= 2) {
+                // playerBullets.forEachAlive(function(bullet){
+                //     bullet.scale.set(0.4);
+                //     bullet.health = 2;
+                // });
+                fireRatePlayer = 250;
+            }
+
             // level 3 or more higher playerBullets become more powerful
             if (this.player.level >= 3) {
-                playerBullets.forEachAlive(function(bullet){
-                    bullet.scale.set(0.4);
-                    bullet.health = 2;
-                });
+                fireRatePlayer = 200;
+            }
+
+            if (this.player.level >= 4) {
+                fireRatePlayer = 150;
+            }
+
+            if (this.player.level >= 5) {
+                fireRatePlayer = 100;
             }
 
 
@@ -485,7 +498,7 @@ function launchMidBoss() {
     if (enemyMidBoss) {
 
         enemyMidBoss.alive = false;
-        enemyMidBoss.health = 50;
+        enemyMidBoss.health = 40;
         enemyMidBoss.nextFireChild = 0;
         enemyMidBoss.nextFireChild2 = 0;
         enemyMidBoss.nextFireChild3 = 0;
@@ -558,8 +571,6 @@ function hitMidBoss(bullet, enemy) {
         enemy.alpha = 1;
         enemy.tint = 0xffffff;
     });
-
-    console.log(enemy.health);
 
     if (enemy.health <= 0) {
         var explosion = explosions.getFirstExists(false);

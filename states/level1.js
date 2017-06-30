@@ -103,8 +103,8 @@
             playerShootChainGun = this.game.add.audio('playerShootChainGun');
             playerShootChainGun.volume = 0.05;
 
-            playerShootChainGunUpgrade = this.game.add.audio('playerShootChainGunUpgrade');
-            playerShootChainGunUpgrade.volume = 0.03;
+            // playerShootChainGunUpgrade = this.game.add.audio('playerShootChainGunUpgrade');
+            // playerShootChainGunUpgrade.volume = 0.03;
 
             explosionSound = this.game.add.audio('explosionSound');
             explosionSound.volume = 0.1;
@@ -113,6 +113,7 @@
             mainSound.volume = 0.3;
             this.game.time.events.add(Phaser.Timer.SECOND * 0.5, function(){
                 mainSound.play();
+                mainSound.loopFull();
             }, this);
 
             levelUpSound = this.game.add.audio('levelUpSound');
@@ -472,12 +473,17 @@
 
             localStorage.setItem('currentExp', this.player.exp);
 
+            if (this.player.level >= 2) {
+                // playerBullets.forEachAlive(function(bullet){
+                //     bullet.scale.set(0.4);
+                //     bullet.health = 2;
+                // });
+                fireRatePlayer = 150;
+            }
+
             // level 3 or more higher playerBullets become more powerful
             if (this.player.level >= 3) {
-                playerBullets.forEachAlive(function(bullet){
-                    bullet.scale.set(0.4);
-                    bullet.health = 2;
-                });
+                fireRatePlayer = 100;
             }
 
 
@@ -556,7 +562,7 @@ function gamePausedTuto2 () {
     barTuto.drawRoundedRect(game.width/3.35, game.height/3.35, game.width / 2.5, game.height / 2.5, 10);
 
     style = { font: "32px Arial", fill: "#000000", align: "center", boundsAlignH: "center", boundsAlignV: "middle"};
-    textTuto = game.add.text(game.world.centerX, game.world.centerY, "Some asteroids can contain an orb, \ntake it for restored your shield !", style);
+    textTuto = game.add.text(game.world.centerX, game.world.centerY, "Some asteroids can contain an orb, \ntake it to restore your shield !", style);
     textTuto.padding.set(7,0);
     textTuto.setShadow(5, 5, 'rgba(0,0,0,0.3)', 5);
     textTuto.anchor.setTo(0.5, 0.5);
@@ -645,7 +651,7 @@ function fireBullet(player) {
     //  Grab the first bullet we can from the pool
     var bullet = playerBullets.getFirstExists(false);
     var bulletSpeed = 600;
-    fireRatePlayer = 100;
+    fireRatePlayer = 200;
 
     if (game.time.now >= nextFire) {
         if (bullet)
@@ -656,11 +662,11 @@ function fireBullet(player) {
                 bullet.scale.set(0.3);
                 bullet.health = 1;
                 playerShootChainGun.play();
-                if (player.level >= 3) {
-                    playerShootChainGun.stop();
-                    game.cache.removeSound('playerShootChainGun');
-                    playerShootChainGunUpgrade.play();
-                }
+                // if (player.level >= 3) {
+                //     playerShootChainGun.stop();
+                //     game.cache.removeSound('playerShootChainGun');
+                //     playerShootChainGunUpgrade.play();
+                // }
 
             }
         nextFire = game.time.now + fireRatePlayer;
@@ -670,7 +676,9 @@ function fireBullet(player) {
 function launchGreenEnemy() {
     var MIN_ENEMY_SPACING = 300;
     var MAX_ENEMY_SPACING = 1000;
-    var ENEMY_SPEED = -150;
+    var ENEMY_SPEED = -220;
+    var spread = 5;
+    var frequency = 80;
 
     var enemy = greenEnemies.getFirstExists(false);
     // var bullet = enemyBullets.getFirstExists(false);
@@ -686,6 +694,9 @@ function launchGreenEnemy() {
         enemy.update = function(){
             enemy.angle = -90 - game.math.radToDeg(Math.atan2(enemy.body.velocity.x, enemy.body.velocity.y));
 
+            // movement effect
+            enemy.body.velocity.y = enemy.body.velocity.y + Math.sin((enemy.x) / frequency) * spread;
+            
             
             // Kill enemies once they go off screen
             if (enemy.x > this.game.width) {
@@ -736,8 +747,8 @@ function launchEnnemiesMain() {
 };
 
 function launchLittleAsteroid() {
-    var MIN_ASTEROID_SPACING = 3000;
-    var MAX_ASTEROID_SPACING = 10000;
+    var MIN_ASTEROID_SPACING = 2000;
+    var MAX_ASTEROID_SPACING = 4000;
     var ASTEROID_SPEED = -75;
 
     var asteroid = littleAsteroid.getFirstExists(false);
@@ -836,7 +847,7 @@ function AnimlevelUp (player) {
     animlevelUpEmit.play('playerLevelUpAnim', 30, false, true);
     trailAnim = animlevelUpEmit;
 
-    // text xp above ennemies 
+    // text level up above player 
     removeTextLevelUp = game.add.bitmapText(player.x, player.y, 'spacefont', 'Level Up', 15);
     game.add.tween(removeTextLevelUp).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
     trailAnimText = removeTextLevelUp;
@@ -949,12 +960,22 @@ function shipCollideShieldEnergy(player, shieldEnergy) {
     if (player.health > 100) {
         player.health = 100;
     }
+
+    var removeTextHealth = this.game.add.text(player.x, player.y, '+ ' + 20, { font: '18px Arial', fill: '#80b3ff' });  
+    removeTextHealth.stroke = "#000";
+    removeTextHealth.strokeThickness = 2;
+    game.add.tween(removeTextHealth).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+    trailAnimText = removeTextHealth;
+
     shields.text = 'Shield: ' + Math.max(player.health, 0) +'%';
 
     animShieldRestored.update = function(){
 
         trailAnim.x = player.x + 35;
         trailAnim.y = player.y - 10;
+
+        trailAnimText.x = player.x + 10;
+        trailAnimText.y = player.y - 15;
    }
 
     
@@ -965,6 +986,7 @@ function hitEnemy(bullet, enemy) {
     enemy.health-=bullet.health;
     bullet.kill();
        
+       console.log(enemy.health);
     if (enemy.health <= 0) {
         var explosion = explosions.getFirstExists(false);
         explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
@@ -1051,7 +1073,7 @@ function hitAsteroid(bullet, asteroid) {
         asteroid.kill();
 
         // random loot from asteroid
-        randomLoot = game.rnd.integerInRange(1,5);
+        randomLoot = game.rnd.integerInRange(1,4);
 
         if (randomLoot == 1) {
             // shield energy
