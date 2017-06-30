@@ -1,4 +1,4 @@
-var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO,''),
+var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.CANVAS,''),
 Main = function () {},
 gameOptions = {
     playSound: true,
